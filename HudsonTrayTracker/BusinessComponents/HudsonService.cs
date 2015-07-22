@@ -232,7 +232,7 @@ namespace Hudson.TrayTracker.BusinessComponents
             logger.Info("Running build at " + url);
 
             Credentials credentials = project.Server.Credentials;
-            String str = DownloadString(credentials, url, false, project.Server.IgnoreUntrustedCertificate);
+            String str = UploadString(credentials, url, project.Server.IgnoreUntrustedCertificate);
 
             if (logger.IsTraceEnabled)
                 logger.Trace("Result: " + str);
@@ -284,6 +284,26 @@ namespace Hudson.TrayTracker.BusinessComponents
                     cache[url] = res;
                 }
             }
+
+            return res;
+        }
+
+        private String UploadString(Credentials credentials, string url, bool ignoreUntrustedCertificate)
+        {
+            string res;
+
+            if (logger.IsTraceEnabled)
+                logger.Trace("Uploading: " + url);
+
+            // set the thread-static field
+            HudsonService.ignoreUntrustedCertificate = ignoreUntrustedCertificate;
+
+            WebClient webClient = GetWebClient(credentials);
+            webClient.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+              res = webClient.UploadString(url,"");
+
+            if (logger.IsTraceEnabled)
+                logger.Trace("Uploaded: " + res);
 
             return res;
         }
