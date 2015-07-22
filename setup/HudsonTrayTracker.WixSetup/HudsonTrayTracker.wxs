@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="A766204D-91FB-4A90-8BFE-31103499BA21"
+  <Product Id="*"
            Name="Jenkins Tray"
            Language="1033"
            Version="$(var.ProductVersion)"
