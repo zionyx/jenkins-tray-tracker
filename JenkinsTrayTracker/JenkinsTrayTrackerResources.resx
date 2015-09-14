@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ApplicationUpdates_Caption" xml:space="preserve">
+    <value>Jenkins Tray updates</value>
+  </data>
+  <data name="ApplicationUpdates_NewVersion_Text" xml:space="preserve">
+    <value>A new version is available: v{0}.
+
+Do you want to download the update now (the application will close) ?</value>
+  </data>
+  <data name="ApplicationUpdates_NoUpdate_Text" xml:space="preserve">
+    <value>No update available.</value>
+  </data>
+  <data name="BuildDetails_Format_NumberDate" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="BuildDetails_Format_DisplayName_NumberDate" xml:space="preserve">
+    <value>{0} - {1} ({2})</value>
+  </data>
+  <data name="BuildDetails_Format_NumberDateUsers" xml:space="preserve">
+    <value>{0} ({1}, {2})</value>
+  </data>
+  <data name="BuildDetails_UserSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="BuildDetails_Cause_SCM_Single" xml:space="preserve">
+    <value>Changes by {0}. </value>
+  </data>
+  <data name="BuildDetails_Cause_SCM_Multiple" xml:space="preserve">
+    <value>Changes by {0} persons. </value>
+  </data>
+  <data name="BuildDetails_Cause_Timer" xml:space="preserve">
+    <value>Scheduled. </value>
+  </data>
+  <data name="BuildDetails_Cause_User" xml:space="preserve">
+    <value>Started by {0}. </value>
+  </data>
+  <data name="BuildDetails_Cause_UpstreamProject" xml:space="preserve">
+    <value>Started by upstream project. </value>
+  </data>
+  <data name="BuildDetails_Cause_RemoteHost" xml:space="preserve">
+    <value>Started remotely. </value>
+  </data>
+  <data name="BuildDetails_Cause_MultipleSources" xml:space="preserve">
+    <value>Started by multiple sources. </value>
+  </data>
+  <data name="BuildDetails_EstimatedDuration_HHMM_Remaining" xml:space="preserve">
+    <value>{0:D1} hour(s) {1:D1} minutes remaining. </value>
+  </data>
+  <data name="BuildDetails_EstimatedDuration_MM_Remaining" xml:space="preserve">
+    <value>{0:D1} minutes remaining. </value>
+  </data>
+  <data name="BuildDetails_EstimatedDuration_HHMM_LongerThanUsual" xml:space="preserve">
+    <value>{0:D1} hours {1:D1} minutes longer than usual. </value>
+  </data>
+  <data name="BuildDetails_EstimatedDuration_MM_LongerThanUsual" xml:space="preserve">
+    <value>{0:D1} minutes longer than usual. </value>
+  </data>
+  <data name="BuildDetails_Duration_HHMM" xml:space="preserve">
+    <value>Took {0:D1} hour(s) {1:D1} minutes. </value>
+  </data>
+  <data name="BuildDetails_Duration_MM" xml:space="preserve">
+    <value>Took {0:D1} minutes. </value>
+  </data>
+  <data name="BuildFailed_Caption" xml:space="preserve">
+    <value>Build failed</value>
+  </data>
+  <data name="BuildRegressions_Caption" xml:space="preserve">
+    <value>Projects regressed</value>
+  </data>
+  <data name="BuildStatus_Aborted" xml:space="preserve">
+    <value>Build was aborted</value>
+  </data>
+  <data name="BuildStatus_Aborted_Stuck" xml:space="preserve">
+    <value>Build was aborted. Build is stuck.</value>
+  </data>
+  <data name="BuildStatus_Failed" xml:space="preserve">
+    <value>Build failed</value>
+  </data>
+  <data name="BuildStatus_Failed_BuildInProgress" xml:space="preserve">
+    <value>Last build failed. Build in progress.</value>
+  </data>
+  <data name="BuildStatus_Failed_Stuck" xml:space="preserve">
+    <value>Last build failed. Build is stuck.</value>
+  </data>
+  <data name="BuildStatus_Indeterminate" xml:space="preserve">
+    <value>Indeterminate: no build done.</value>
+  </data>
+  <data name="BuildStatus_Indeterminate_BuildInProgress" xml:space="preserve">
+    <value>Indeterminate: no build done. Build in progress.</value>
+  </data>
+  <data name="BuildStatus_Indeterminate_Stuck" xml:space="preserve">
+    <value>Indeterminate: no build done. Build is stuck.</value>
+  </data>
+  <data name="BuildStatus_Successful" xml:space="preserve">
+    <value>Successful</value>
+  </data>
+  <data name="BuildStatus_Successful_BuildInProgress" xml:space="preserve">
+    <value>Successful. Build in progress.</value>
+  </data>
+  <data name="BuildStatus_Successful_Stuck" xml:space="preserve">
+    <value>Successful. Build is stuck.</value>
+  </data>
+  <data name="BuildStatus_Disabled" xml:space="preserve">
+    <value>Project disabled</value>
+  </data>
+  <data name="BuildStatus_Disabled_BuildInProgress" xml:space="preserve">
+    <value>Project disabled. Build in progress.</value>
+  </data>
+  <data name="BuildStatus_Disabled_Stuck" xml:space="preserve">
+    <value>Project disabled. Build is stuck.</value>
+  </data>
+  <data name="BuildStatus_Unknown" xml:space="preserve">
+    <value>Unknown status</value>
+  </data>
+  <data name="BuildStatus_Unstable" xml:space="preserve">
+    <value>Unstable: some tests failed.</value>
+  </data>
+  <data name="BuildStatus_Unstable_BuildInProgress" xml:space="preserve">
+    <value>Unstable: some tests failed. Build in progress.</value>
+  </data>
+  <data name="BuildStatus_Unstable_Stuck" xml:space="preserve">
+    <value>Unstable: some tests failed. Build is stuck.</value>
+  </data>
+  <data name="DisplayBuildStatus_Caption" xml:space="preserve">
+    <value>Build status</value>
+  </data>
+  <data name="DisplayBuildStatus_NoProjects" xml:space="preserve">
+    <value>No projects configured</value>
+  </data>
+  <data name="ErrorBoxCaption" xml:space="preserve">
+    <value>An error occurred</value>
+  </data>
+  <data name="ErrorBoxMessage" xml:space="preserve">
+    <value>The following error occurred:
+
+Message: {0}</value>
+  </data>
+  <data name="FailedLoadingIcons_Caption" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="FailedLoadingIcons_Text" xml:space="preserve">
+    <value>Failed loading icons for the tray notifier.</value>
+  </data>
+  <data name="FailedLoadingProjects_FormatString" xml:space="preserve">
+    <value>Error loading projects from {0}</value>
+  </data>
+  <data name="FatalError_Caption" xml:space="preserve">
+    <value>A fatal error occurred</value>
+  </data>
+  <data name="FatalError_Message" xml:space="preserve">
+    <value>Fatal error.
+
+Please refer to the log files for more details.</value>
+  </data>
+  <data name="LastCheck_Format" xml:space="preserve">
+    <value>Last check: {0}</value>
+  </data>
+  <data name="LoadingProjects_FormatString" xml:space="preserve">
+    <value>Loading projects from {0}</value>
+  </data>
+  <data name="NotificationSettings_Failed" xml:space="preserve">
+    <value>Build failed</value>
+  </data>
+  <data name="NotificationSettings_Fixed" xml:space="preserve">
+    <value>Build fixed</value>
+  </data>
+  <data name="NotificationSettings_StillFailing" xml:space="preserve">
+    <value>Build still failing</value>
+  </data>
+  <data name="NotificationSettings_Succeeded" xml:space="preserve">
+    <value>Build succeeded</value>
+  </data>
+  <data name="RunBuildFailed_Caption" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="RunBuildFailed_Text" xml:space="preserve">
+    <value>Failed running build: {0}.</value>
+  </data>
+  <data name="SeriousErrorBoxMessage" xml:space="preserve">
+    <value>The following error occurred:
+
+Type: {0}
+Message: {1}
+
+Please refer to the log files for more details.
+
+The application will now be closed.</value>
+  </data>
+  <data name="Version_Format" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="BuildDetails_Duration_0M" xml:space="preserve">
+    <value>Took less than a minute. </value>
+  </data>
+  <data name="BuildDetails_Cause_SCM" xml:space="preserve">
+    <value>Started by SCM change. </value>
+  </data>
+  <data name="BuildDetails_BrokenBy" xml:space="preserve">
+    <value>Broken by {0}. </value>
+  </data>
+  <data name="Tooltip_BuildStatus" xml:space="preserve">
+    <value>{0}: {1}.</value>
+  </data>
+  <data name="Tooltip_Failed_And_InProgress" xml:space="preserve">
+    <value>{0}: Failed and in progress.</value>
+  </data>
+  <data name="Tooltip_InProgress" xml:space="preserve">
+    <value>{0}: In progress.</value>
+  </data>
+  <data name="Tooltip_AllGood" xml:space="preserve">
+    <value>All builds are good.</value>
+  </data>
+  <data name="AuthenticateToken_ProjectName" xml:space="preserve">
+    <value>Project: {0}</value>
+  </data>
+  <data name="BuildDetails_InQueue_Since" xml:space="preserve">
+    <value> In queue since {0}.</value>
+  </data>
+  <data name="BuildDetails_InQueue" xml:space="preserve">
+    <value>Subsequent build is queued.</value>
+  </data>
+  <data name="BuildDetails_InQueue_Why" xml:space="preserve">
+    <value>Reason: {0}.</value>
+  </data>
+</root>

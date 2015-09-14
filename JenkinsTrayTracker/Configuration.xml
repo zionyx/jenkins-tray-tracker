@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<objects xmlns="http://www.springframework.net">
+
+  <object id="NotificationSettings" type="Jenkins.TrayTracker.Entities.NotificationSettings"/>
+  <object id="GeneralSettings" type="Jenkins.TrayTracker.Entities.GeneralSettings"/>
+
+  <object id="ConfigurationService" type="Jenkins.TrayTracker.BusinessComponents.ConfigurationService" autowire="byType" init-method="Initialize"/>
+  <object id="JenkinsService" type="Jenkins.TrayTracker.BusinessComponents.JenkinsService" autowire="byType"/>
+  <object id="ProjectsUpdateService" type="Jenkins.TrayTracker.BusinessComponents.ProjectsUpdateService" autowire="byType" init-method="Initialize"/>
+  <object id="ApplicationUpdateService" type="Jenkins.TrayTracker.BusinessComponents.ApplicationUpdateService" autowire="byType" init-method="Initialize"/>
+  <object id="NotificationService" type="Jenkins.TrayTracker.BusinessComponents.NotificationService" autowire="byType" init-method="Initialize"/>
+  <object id="ClaimService" type="Jenkins.TrayTracker.BusinessComponents.ClaimService" autowire="byType"/>
+
+  <object id="ApplicationUpdateHandler" type="Jenkins.TrayTracker.Utils.ApplicationUpdateHandler" autowire="byType" init-method="Initialize"/>
+
+  <object id="MainForm" type="Jenkins.TrayTracker.UI.MainForm">
+    <property name="ConfigurationService" ref="ConfigurationService"/>
+    <property name="JenkinsService" ref="JenkinsService"/>
+    <property name="ProjectsUpdateService" ref="ProjectsUpdateService"/>
+    <property name="ApplicationUpdateService" ref="ApplicationUpdateService"/>
+  </object>
+  <object id="AboutForm" type="Jenkins.TrayTracker.UI.AboutForm"/>
+  <object id="AuthenticationTokenForm" type="Jenkins.TrayTracker.UI.AuthenticationTokenForm"/>
+  <object id="SettingsForm" type="Jenkins.TrayTracker.UI.SettingsForm">
+    <property name="ConfigurationService" ref="ConfigurationService"/>
+    <property name="JenkinsService" ref="JenkinsService"/>
+  </object>
+  <object id="TrayNotifier" type="Jenkins.TrayTracker.UI.TrayNotifier" init-method="Initialize">
+    <property name="ConfigurationService" ref="ConfigurationService"/>
+    <property name="JenkinsService" ref="JenkinsService"/>
+    <property name="UpdateService" ref="ProjectsUpdateService"/>
+    <property name="NotificationService" ref="NotificationService"/>
+    <property name="ConfigurationService" ref="ConfigurationService"/>
+  </object>
+
+
+</objects>

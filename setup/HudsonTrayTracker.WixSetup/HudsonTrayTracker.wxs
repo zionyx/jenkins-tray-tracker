@@ -28,7 +28,7 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="Jenkins Tray" FileSource="$(var.SolutionDir)..\HudsonTrayTracker\bin\x86\$(var.Configuration)">
+        <Directory Id="INSTALLLOCATION" Name="Jenkins Tray" FileSource="$(var.SolutionDir)..\JenkinsTrayTracker\bin\x86\$(var.Configuration)">
           <Component Id="cmp788826F037B232B8D1CA662C7A724415" Guid="{F488277E-40A7-476A-B965-BEEB006497F9}">
             <File Id="fil5688DA34328E8A1E0A4F6A1D804C37DE" KeyPath="yes" Name="antlr.runtime.dll" />
           </Component>
@@ -57,7 +57,7 @@
             <File Id="fil249C1995895C98D347336EB175B533E6" KeyPath="yes" Name="DevExpress.XtraGrid.v10.1.dll" />
           </Component>
           <Component Id="cmpDECF02664B2BD6FE145377F56C75278A" Guid="{F6E0A644-06C6-4847-8F2C-D6BE31CF9276}">
-            <File Id="filEDE5C71FA0C030AE438BD4489F0353CD" KeyPath="yes" Name="HudsonTrayTracker.ico" />
+            <File Id="filEDE5C71FA0C030AE438BD4489F0353CD" KeyPath="yes" Name="JenkinsTrayTracker.ico" />
           </Component>
           <Component Id="cmpFC72D988F9982C9734B0DAEBC993CEE9" Guid="{5D5C900B-C308-4E69-8FC6-255D1FE809C8}">
             <File Id="filACD69880BE1FDE3432073222CF6438B2" KeyPath="yes" Name="JenkinsTray.exe" />
@@ -86,7 +86,7 @@
 
           <Directory Id="setup" Name="setup">
             <Component Id="cmp0FAE03C65D96ED1D021C482BB95EC17C" Guid="{219D2CA4-86EE-40F5-B58A-0090402D2373}">
-              <File Id="fil05B5A1FCB0324171FCF22AD1C566E172" KeyPath="yes" Source="$(var.SolutionDir)HudsonTrayTracker.Setup.CustomActions\bin\x86\$(var.Configuration)\JenkinsTray.Setup.CustomActions.dll" />
+              <File Id="fil05B5A1FCB0324171FCF22AD1C566E172" KeyPath="yes" Source="$(var.SolutionDir)JenkinsTrayTracker.Setup.CustomActions\bin\x86\$(var.Configuration)\JenkinsTray.Setup.CustomActions.dll" />
             </Component>
             <Component Id="cmp053A2ABE2833EF70F99155D399B3D030" Guid="{50413CFC-020E-4A7F-9933-1EDE39DEA88D}">
               <File Id="InstallUtilConfig" KeyPath="yes" Source="src\InstallUtilConfig.xml" />

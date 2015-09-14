@@ -21,7 +21,7 @@
     <DefineConstants></DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="HudsonTrayTracker.wxs" />
+    <Compile Include="JenkinsTrayTracker.wxs" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">
@@ -35,7 +35,7 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
 
-  <UsingTask AssemblyFile="..\HudsonTrayTracker.Setup.CustomActions\bin\$(Platform)\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
+  <UsingTask AssemblyFile="..\JenkinsTrayTracker.Setup.CustomActions\bin\$(Platform)\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
   <Target Name="BeforeBuild">
     <!-- Get the programs assembly version from the .exe file -->
     <GetAssemblyFileVersion strFilePathAssemblyInfo="..\..\common\VersionInfo.cs">
