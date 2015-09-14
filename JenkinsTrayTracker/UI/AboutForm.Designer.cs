@@ -139,7 +139,7 @@ namespace Jenkins.TrayTracker.UI
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(278, 15);
             this.labelControl5.TabIndex = 8;
-            this.labelControl5.Text = "Original Project: Jenkins Tray Tracker";
+            this.labelControl5.Text = "Original Project: Hudson Tray Tracker";
             // 
             // labelControl6
             // 
