@@ -3,7 +3,7 @@ SetLocal EnableDelayedExpansion
 
 PushD "%~dp0"
 
-Set "JenkinsTrayExe=..\JenkinsTrayTracker\bin\x86\Release\JenkinsTray.exe"
+Set "JenkinsTrayExe=..\JenkinsTray\bin\x86\Release\JenkinsTray.exe"
 Set "FileVerExe=..\Lib\Tools\filever.exe"
 
 for /F "usebackq tokens=4* delims= " %%F in (`%FileVerExe% /B /A /D %JenkinsTrayExe%`) do (
