@@ -22,7 +22,7 @@ namespace JenkinsTray.UI
     {
         static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public static readonly int MAX_TOOLTIP_LENGTH = 127;
-        public static readonly int BALLOON_TOOLTIP_TIMEOUT = 5000;
+        public static readonly int BALLOON_TOOLTIP_TIMEOUT = 3000;
 
         public static TrayNotifier Instance
         {
@@ -258,9 +258,12 @@ namespace JenkinsTray.UI
             BuildStatus buildStatus = new BuildStatus(worstBuildStatus.Value, buildInProgress, buildIsStuck);
 
             UpdateIcon(buildStatus);
-            UpdateBalloonTip(errorProjects, regressingProjects);
             UpdateTrayTooltip(progressingAndErrorProjects, totalProjectCount);
-            ShowBallowTip(interestingProjects);
+            if (ConfigurationService.NotificationSettings.BalloonNotifications)
+            {
+                UpdateBalloonTip(errorProjects, regressingProjects);
+                ShowBallowTip(interestingProjects);
+            }
 
             lastBuildStatus = buildStatus;
         }

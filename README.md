@@ -8,3 +8,7 @@ Hudson Tray Tracker forked.
 Inherited Issues
 ================
 https://code.google.com/p/hudson-tray-tracker/issues/list
+
+Release Process
+================
+See [the release procedure](RELEASE.md).

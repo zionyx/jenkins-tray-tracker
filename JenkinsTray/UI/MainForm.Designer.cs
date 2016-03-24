@@ -48,6 +48,7 @@ namespace JenkinsTray.UI
             this.openProjectPageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openConsolePageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runBuildMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stopBuildMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.acknowledgeStatusMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.acknowledgeProjectMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -232,6 +233,7 @@ namespace JenkinsTray.UI
             this.openProjectPageMenuItem,
             this.openConsolePageMenuItem,
             this.runBuildMenuItem,
+            this.stopBuildMenuItem,
             this.toolStripSeparator1,
             this.acknowledgeStatusMenuItem,
             this.acknowledgeProjectMenuItem,
@@ -250,14 +252,15 @@ namespace JenkinsTray.UI
             this.openProjectPageMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openProjectPageMenuItem.Image")));
             this.openProjectPageMenuItem.Name = "openProjectPageMenuItem";
             this.openProjectPageMenuItem.Size = new System.Drawing.Size(229, 22);
-            this.openProjectPageMenuItem.Text = "Open project page";
+            this.openProjectPageMenuItem.Text = "&Open project page";
             this.openProjectPageMenuItem.Click += new System.EventHandler(this.openProjectPageMenuItem_Click);
             // 
             // openConsolePageMenuItem
             // 
+            this.openConsolePageMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openConsolePageMenuItem.Image")));
             this.openConsolePageMenuItem.Name = "openConsolePageMenuItem";
             this.openConsolePageMenuItem.Size = new System.Drawing.Size(229, 22);
-            this.openConsolePageMenuItem.Text = "View console output";
+            this.openConsolePageMenuItem.Text = "View &console output";
             this.openConsolePageMenuItem.Click += new System.EventHandler(this.openConsolePageMenuItem_Click);
             // 
             // runBuildMenuItem
@@ -265,8 +268,16 @@ namespace JenkinsTray.UI
             this.runBuildMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("runBuildMenuItem.Image")));
             this.runBuildMenuItem.Name = "runBuildMenuItem";
             this.runBuildMenuItem.Size = new System.Drawing.Size(229, 22);
-            this.runBuildMenuItem.Text = "Run build";
+            this.runBuildMenuItem.Text = "&Run build";
             this.runBuildMenuItem.Click += new System.EventHandler(this.runBuildMenuItem_Click);
+            //
+            // stopBuildMenuItem
+            //
+            this.stopBuildMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("stopBuildMenuItem.Image")));
+            this.stopBuildMenuItem.Name = "stopBuildMenuItem";
+            this.stopBuildMenuItem.Size = new System.Drawing.Size(229, 22);
+            this.stopBuildMenuItem.Text = "&Abort build";
+            this.stopBuildMenuItem.Click += new System.EventHandler(this.stopBuildMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -277,14 +288,14 @@ namespace JenkinsTray.UI
             // 
             this.acknowledgeStatusMenuItem.Name = "acknowledgeStatusMenuItem";
             this.acknowledgeStatusMenuItem.Size = new System.Drawing.Size(229, 22);
-            this.acknowledgeStatusMenuItem.Text = "Acknowledge status";
+            this.acknowledgeStatusMenuItem.Text = "&Acknowledge status";
             this.acknowledgeStatusMenuItem.Click += new System.EventHandler(this.acknowledgeMenuItem_Click);
             // 
             // acknowledgeProjectMenuItem
             // 
             this.acknowledgeProjectMenuItem.Name = "acknowledgeProjectMenuItem";
             this.acknowledgeProjectMenuItem.Size = new System.Drawing.Size(229, 22);
-            this.acknowledgeProjectMenuItem.Text = "Acknowledge project";
+            this.acknowledgeProjectMenuItem.Text = "Ac&knowledge project";
             this.acknowledgeProjectMenuItem.Click += new System.EventHandler(this.acknowledgeProjectMenuItem_Click);
             // 
             // toolStripSeparator2
@@ -537,6 +548,7 @@ namespace JenkinsTray.UI
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem openProjectPageMenuItem;
         private System.Windows.Forms.ToolStripMenuItem runBuildMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stopBuildMenuItem;
         private DevExpress.XtraBars.BarButtonItem checkUpdatesButtonItem;
         private System.Windows.Forms.ToolStripMenuItem acknowledgeStatusMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;

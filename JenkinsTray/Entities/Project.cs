@@ -11,6 +11,7 @@ namespace JenkinsTray.Entities
         public class QueueItem
         {
             public bool InQueue { get; set; }
+            public long Id { get; set; }
             public DateTime InQueueSince { get; set; }
             public string Why { get; set; }
         }

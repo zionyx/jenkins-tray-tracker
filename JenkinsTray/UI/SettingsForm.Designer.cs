@@ -103,7 +103,7 @@ namespace JenkinsTray.UI
             this.notificationsTabPage.Controls.Add(this.notificationsSettingsControl);
             this.notificationsTabPage.Name = "notificationsTabPage";
             this.notificationsTabPage.Size = new System.Drawing.Size(717, 404);
-            this.notificationsTabPage.Text = "Sound notifications";
+            this.notificationsTabPage.Text = "Notifications";
             // 
             // notificationsSettingsControl
             // 

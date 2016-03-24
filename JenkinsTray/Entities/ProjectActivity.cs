@@ -54,7 +54,7 @@ namespace JenkinsTray.Entities
 
         public bool HasStatusChanged
         {
-            get { return project.PreviousStatus.Key != project.Status.Key; }
+            get { return (project.PreviousStatus != null ? project.PreviousStatus.Key != project.Status.Key : false); }
         }
 
         public bool HasNewBuildStarted

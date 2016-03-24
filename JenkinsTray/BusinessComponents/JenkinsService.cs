@@ -41,7 +41,7 @@ namespace JenkinsTray.BusinessComponents
 
         public IList<Project> LoadProjects(Server server)
         {
-            String url = NetUtils.ConcatUrls(server.Url, "/api/xml");
+            String url = NetUtils.ConcatUrls(server.Url, "/api/xml?tree=jobs[name,url,color]");
 
             logger.Info("Loading projects from " + url);
 
@@ -54,25 +54,49 @@ namespace JenkinsTray.BusinessComponents
             xml.LoadXml(xmlStr);
 
             XmlNodeList jobElements = xml.SelectNodes("/hudson/job");
+            var projects = GetProjects(jobElements, server);
+            
+            logger.Info("Done loading projects");
+
+            return projects;
+        }
+
+        public List<Project> GetProjects(XmlNodeList jobElements, Server server)
+        {
             var projects = new List<Project>();
+
             foreach (XmlNode jobElement in jobElements)
             {
                 string projectName = jobElement.SelectSingleNode("name").InnerText;
                 string projectUrl = jobElement.SelectSingleNode("url").InnerText;
+                XmlNode projectColor = jobElement.SelectSingleNode("color");
+                // If the job is a folder we need to recursively get the jobs within.
+                if (jobElement.SelectSingleNode("color") == null)
+                {
+                    String url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
+                    String xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
+                    XmlDocument xml = new XmlDocument();
+                    xml.LoadXml(xmlStr);
+                    XmlNodeList nodes = xml.SelectNodes("/folder/job");
+                    projects.AddRange(GetProjects(nodes, server));
+                }
+                else
+                {
+                    Project project = new Project();
+                    project.Server = server;
+                    project.Name = projectName;
+                    project.Url = projectUrl;
 
-                Project project = new Project();
-                project.Server = server;
-                project.Name = projectName;
-                project.Url = projectUrl;
+                    if (logger.IsDebugEnabled)
+                        logger.Debug("Found project " + projectName + " (" + projectUrl + ")");
 
-                if (logger.IsDebugEnabled)
-                    logger.Debug("Found project " + projectName + " (" + projectUrl + ")");
-
-                projects.Add(project);
+                    // Ensure only unique entries in the returned list.
+                    if (!projects.Contains(project))
+                    {
+                        projects.Add(project);
+                    }
+                }
             }
-
-            logger.Info("Done loading projects");
-
             return projects;
         }
 
@@ -94,6 +118,7 @@ namespace JenkinsTray.BusinessComponents
 
             bool? inQueue = XmlUtils.SelectSingleNodeBoolean(xml, "/*/inQueue");
             string inQueueSince = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/inQueueSince");
+            string queueId = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/id");
             string why = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/why");
             bool? stuck = XmlUtils.SelectSingleNodeBoolean(xml, "/*/queueItem/stuck");
             string status = xml.SelectSingleNode("/*/color").InnerText;
@@ -103,6 +128,10 @@ namespace JenkinsTray.BusinessComponents
             string lastFailedBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastFailedBuild/url");
 
             project.Queue.InQueue = (inQueue.HasValue && inQueue.Value == true);
+            if (!String.IsNullOrEmpty(queueId))
+            {
+                project.Queue.Id = long.Parse(queueId);
+            }
             if (!String.IsNullOrEmpty(inQueueSince))
             {
                 TimeSpan ts = TimeSpan.FromSeconds(long.Parse(inQueueSince) / 1000);
@@ -242,6 +271,83 @@ namespace JenkinsTray.BusinessComponents
                 logger.Trace("Result: " + str);
 
             logger.Info("Done running build");
+        }
+
+        public void SafeStopBuild(Project project)
+        {
+            try
+            {
+                StopBuild(project);
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.LogError(logger, ex);
+                throw ex;
+            }
+        }
+
+        public void StopBuild(Project project)
+        {
+            String url = NetUtils.ConcatUrls(project.Url, "/lastBuild/stop");
+
+            if (!string.IsNullOrEmpty(project.AuthenticationToken))
+            {
+                url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&token=", HttpUtility.UrlEncodeUnicode(project.AuthenticationToken));
+                if (!string.IsNullOrEmpty(project.CauseText))
+                {
+                    url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&cause=", HttpUtility.UrlEncodeUnicode(project.CauseText));
+                }
+            }
+            logger.Info("Stopping build at " + url);
+
+            Credentials credentials = project.Server.Credentials;
+            String str = UploadString(credentials, url, project.Server.IgnoreUntrustedCertificate);
+
+            if (logger.IsTraceEnabled)
+                logger.Trace("Result: " + str);
+
+            logger.Info("Done stopping build");
+        }
+
+        public void SafeRemoveFromQueue(Project project)
+        {
+            try
+            {
+                RemoveFromQueue(project.Server, project.Queue.Id);
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.LogError(logger, ex);
+                throw ex;
+            }
+        }
+
+        public void RemoveFromQueue(Server server, long queueId)
+        {
+            String url = NetUtils.ConcatUrls(server.Url, "/queue/cancelItem?id=" + queueId);
+
+            logger.Info("Removing queue item at " + url);
+
+            Credentials credentials = server.Credentials;
+
+            try
+            {
+                String str = UploadString(credentials, url, server.IgnoreUntrustedCertificate);
+
+                if (logger.IsTraceEnabled)
+                    logger.Trace("Result: " + str);
+            }
+            catch (WebException webEx)
+            {
+                //  Workaround for JENKINS-21311
+                if (webEx.Status == WebExceptionStatus.ProtocolError && ((HttpWebResponse)webEx.Response).StatusCode == HttpStatusCode.NotFound)
+                {
+                    //  consume error 404
+                }
+                else
+                    throw webEx;
+            }
+            logger.Info("Done removing queue item");
         }
 
         private String DownloadString(Credentials credentials, string url, bool cacheable,

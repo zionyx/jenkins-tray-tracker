@@ -21,5 +21,8 @@ namespace JenkinsTray.Entities
 
         [JsonProperty("treatUnstableAsFailed")]
         public bool TreatUnstableAsFailed { get; set; }
+
+        [JsonProperty("balloonNotifications")]
+        public bool BalloonNotifications { get; set; }
     }
 }

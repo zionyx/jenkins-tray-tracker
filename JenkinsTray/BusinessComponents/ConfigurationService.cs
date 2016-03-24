@@ -207,6 +207,11 @@ namespace JenkinsTray.BusinessComponents
             return NotificationSettings.SoundNotifications;
         }
 
+        public bool IsBalloonNotificationsEnabled()
+        {
+            return NotificationSettings.BalloonNotifications;
+        }
+
         public void SetTreadUnstableAsFailed(bool value)
         {
             if (NotificationSettings.TreatUnstableAsFailed != value)
@@ -257,6 +262,15 @@ namespace JenkinsTray.BusinessComponents
             if (NotificationSettings.SoundNotifications != value)
             {
                 NotificationSettings.SoundNotifications = value;
+                SaveConfiguration();
+            }
+        }
+
+        public void SetBalloonNotifications(bool value)
+        {
+            if (NotificationSettings.BalloonNotifications != value)
+            {
+                NotificationSettings.BalloonNotifications = value;
                 SaveConfiguration();
             }
         }

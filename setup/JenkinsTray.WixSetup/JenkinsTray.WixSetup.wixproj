@@ -42,7 +42,7 @@
       <Output TaskParameter="strAssemblyFileVersion" PropertyName="strAssemblyFileVersion" />
     </GetAssemblyFileVersion>
     <!-- Store the assembly version number in ProductVersion preprocessor variable -->
-    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion)">
+    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion);ProductName=Jenkins Tray">
       <Output TaskParameter="Value" PropertyName="DefineConstants" />
     </CreateProperty>
     <!-- Name the .msi file after the solution platform and assembly version e.g JenkinsTray-v1.4.0.0.msi -->

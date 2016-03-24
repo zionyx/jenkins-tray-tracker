@@ -32,6 +32,7 @@ namespace JenkinsTray.UI.Controls
             treatUnstableAsFailedCheckBox.Checked = configurationService.IsTreadUnstableAsFailed();
             enableSoundCheckBox.Checked = configurationService.IsSoundNotificationsEnabled();
             enableSoundCheckBox_CheckedChanged(null, null);
+            enableBalloonCheckBox.Checked = configurationService.IsBalloonNotificationsEnabled();
         }
 
         public void InitializeValues()
@@ -74,6 +75,11 @@ namespace JenkinsTray.UI.Controls
         private void treatUnstableAsFailedCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             configurationService.SetTreadUnstableAsFailed(treatUnstableAsFailedCheckBox.Checked);
+        }
+
+        private void enableBalloonCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            configurationService.SetBalloonNotifications(enableBalloonCheckBox.Checked);
         }
     }
 }

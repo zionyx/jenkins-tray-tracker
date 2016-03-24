@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*"
-           Name="Jenkins Tray"
+           Name="$(var.ProductName)"
            Language="1033"
            Version="$(var.ProductVersion)"
-           Manufacturer="Jenkins Tray Project"
+           Manufacturer="$(var.ProductName) Project"
            UpgradeCode="C8D46C5C-C37A-4596-BDDC-446D53436CFC">
 
-    <!--InstallPrivileges="elevated" -->
-    <Package InstallerVersion="200"
-        Description="Jenkins Tray $(var.ProductVersion)"
-        InstallScope="perMachine"
-        Compressed="yes" />
+    <Package InstallerVersion="200" Compressed="yes" />
 
     <Condition Message="A newer version of [ProductName] is already installed. Setup will now exit.">
       NOT NEWERVERSIONDETECTED OR Installed
@@ -32,7 +28,7 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="Jenkins Tray" FileSource="$(var.SolutionDir)..\JenkinsTray\bin\x86\$(var.Configuration)">
+        <Directory Id="INSTALLLOCATION" Name="$(var.ProductName)" FileSource="$(var.SolutionDir)..\JenkinsTray\bin\x86\$(var.Configuration)">
           <Component Id="cmp788826F037B232B8D1CA662C7A724415" Guid="{F488277E-40A7-476A-B965-BEEB006497F9}">
             <File Id="fil5688DA34328E8A1E0A4F6A1D804C37DE" KeyPath="yes" Name="antlr.runtime.dll" />
           </Component>
@@ -99,9 +95,9 @@
           
           <!-- Shortcuts menu -->
           <Directory Id="ProgramMenuFolder">
-            <Directory Id="ApplicationProgramsFolder" Name="Jenkins Tray">
+            <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)">
               <Component Id="ApplicationShortcut" Guid="{BC1439CD-7AE8-4A71-99CE-C3C2512BE23A}">
-                <Shortcut Id="ApplicationStartMenuShortcut" Name="Jenkins Tray" Description="Jenkins Tray $(var.ProductVersion)"
+                <Shortcut Id="ApplicationStartMenuShortcut" Name="$(var.ProductName)" Description="$(var.ProductName) $(var.ProductVersion)"
                           Target="[#filACD69880BE1FDE3432073222CF6438B2]" WorkingDirectory="INSTALLLOCATION"/>
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
                 <RegistryValue Root="HKCU" Key="Software\JenkinsTray" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
@@ -110,7 +106,7 @@
             
             <Directory Id="StartupFolder" Name="Startup">
               <Component Id="StartupShortcut" Guid="{3BC25ED5-9C5B-4513-A90B-87C4CDB75DF9}">
-                <Shortcut Id="StartupMenuShortcut" Directory="StartupFolder" Name="Jenkins Tray" Description="Jenkins Tray $(var.ProductVersion)"
+                <Shortcut Id="StartupMenuShortcut" Directory="StartupFolder" Name="$(var.ProductName)" Description="$(var.ProductName) $(var.ProductVersion)"
                           Target="[#filACD69880BE1FDE3432073222CF6438B2]" WorkingDirectory="INSTALLLOCATION"/>
                 <RegistryValue Root="HKCU" Key="Software\JenkinsTray" Name="startup" Type="integer" Value="1" KeyPath="yes"/>
               </Component>
@@ -125,7 +121,7 @@
 
     <Binary Id="InstallUtil" SourceFile="src\InstallUtilLib.dll" />
 
-    <Feature Id="Application" Title="Jenkins Tray" Level="1">
+    <Feature Id="Application" Title="$(var.ProductName)" Level="1">
       <ComponentRef Id="cmp788826F037B232B8D1CA662C7A724415"/>
       <ComponentRef Id="cmp9C7F9E356EE86CE45ED3BA0B5BEAD581"/>
       <ComponentRef Id="cmpB5CD10B4F08899371641B0C0DE534EE3"/>
@@ -154,7 +150,7 @@
     </Feature>
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Jenkins Tray" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
     <Property Id="WixShellExecTarget" Value="[#filACD69880BE1FDE3432073222CF6438B2]" />
