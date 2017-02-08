@@ -522,4 +522,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release'">
+    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+      <Output TaskParameter="Assemblies" ItemName="myAssemblyInfo" />
+    </GetAssemblyIdentity>
+    <Exec Command="nuget pack JenkinsTray.nuspec -Properties Configuration=Release;ProductVersion=%(myAssemblyInfo.Version) -NonInteractive -o $(OutDir) -BasePath $(OutDir)" />
+    <Exec Command="squirrel --releasify $(OutDir)JenkinsTray.%(myAssemblyInfo.Version).nupkg" />
+  </Target>
 </Project>

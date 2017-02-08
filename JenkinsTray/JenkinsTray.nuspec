@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Jenkins.Tray</id>
+        <version>1.1.0</version>
+        <authors>zionyx and contributors</authors>
+        <owners>zionyx</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Jenkins Tray App for Windows</description>
+        <summary>Jenkins Tray</summary>
+        <copyright>Copyright 2016</copyright>
+    </metadata>
+    <files>
+        <file src="Common.*.dll" target="lib\net45" />
+        <file src="Common.Logging.xml" target="lib\net45" />
+        <file src="DeltaCompressionDotNet.dll" target="lib\net45" />
+        <file src="DeltaCompressionDotNet.*.dll" target="lib\net45" />
+        <file src="DevExpress.*.dll" target="lib\net45" />
+        <file src="ICSharpCode.SharpZipLib.dll" target="lib\net45\ICSharpCode.SharpZipLib.dll" />
+        <file src="JenkinsTray.exe" target="lib\net45\JenkinsTray.exe" />
+        <file src="JenkinsTray.exe.config" target="lib\net45\JenkinsTray.exe.config" />
+        <file src="JenkinsTray.ico" target="lib\net45\JenkinsTray.ico" />
+        <file src="log4net.dll" target="lib\net45\log4net.dll" />
+        <file src="LoggingConfig.xml" target="lib\net45\LoggingConfig.xml" />
+        <file src="Mono.*.dll" target="lib\net45" />
+        <file src="Newtonsoft.Json.dll" target="lib\net45\Newtonsoft.Json.dll" />
+        <file src="NuGet.Squirrel.dll" target="lib\net45\NuGet.Squirrel.dll" />
+        <file src="SmartThreadPool.dll" target="lib\net45\SmartThreadPool.dll" />
+        <file src="Splat.dll" target="lib\net45\Splat.dll" />
+        <file src="Spring.Core.dll" target="lib\net45\Spring.Core.dll" />
+        <file src="Squirrel.dll" target="lib\net45\Squirrel.dll" />
+    </files>
+</package>
