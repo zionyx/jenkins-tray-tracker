@@ -1,21 +1,23 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
-using JenkinsTray.BusinessComponents;
 using DevExpress.XtraEditors.Controls;
+using JenkinsTray.BusinessComponents;
 using Spring.Context.Support;
-using System.Diagnostics;
 
 namespace JenkinsTray.UI.Controls
 {
-    public partial class NotificationSettingsControl : DevExpress.XtraEditors.XtraUserControl
+    public partial class NotificationSettingsControl : XtraUserControl
     {
-        ConfigurationService configurationService;
+        private ConfigurationService configurationService;
+
+        public NotificationSettingsControl()
+        {
+            InitializeComponent();
+        }
 
         public string Status { get; set; }
 
@@ -29,11 +31,6 @@ namespace JenkinsTray.UI.Controls
             }
         }
 
-        public NotificationSettingsControl()
-        {
-            InitializeComponent();
-        }
-
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -44,7 +41,8 @@ namespace JenkinsTray.UI.Controls
 
             if (configurationService == null)
             {
-                configurationService = (ConfigurationService)ContextRegistry.GetContext().GetObject("ConfigurationService");
+                configurationService =
+                    (ConfigurationService) ContextRegistry.GetContext().GetObject("ConfigurationService");
             }
 
             statusLabel.Text = JenkinsTrayResources.ResourceManager.GetString("NotificationSettings_" + Status);
@@ -54,7 +52,8 @@ namespace JenkinsTray.UI.Controls
         {
             if (configurationService == null)
             {
-                configurationService = (ConfigurationService)ContextRegistry.GetContext().GetObject("ConfigurationService");
+                configurationService =
+                    (ConfigurationService) ContextRegistry.GetContext().GetObject("ConfigurationService");
             }
             SoundPath = configurationService.GetSoundPath(Status);
         }
@@ -69,11 +68,11 @@ namespace JenkinsTray.UI.Controls
 
         private void ChooseFile()
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
+            var fileDialog = new OpenFileDialog();
             fileDialog.CheckFileExists = true;
             fileDialog.Filter = "Sound file (*.wav)|*.wav";
 
-            DialogResult res = fileDialog.ShowDialog();
+            var res = fileDialog.ShowDialog();
             if (res == DialogResult.OK)
             {
                 SetPath(fileDialog.FileName);
@@ -84,7 +83,8 @@ namespace JenkinsTray.UI.Controls
         {
             if (configurationService == null)
             {
-                configurationService = (ConfigurationService)ContextRegistry.GetContext().GetObject("ConfigurationService");
+                configurationService =
+                    (ConfigurationService) ContextRegistry.GetContext().GetObject("ConfigurationService");
             }
 
             configurationService.SetSoundPath(Status, path);
@@ -98,7 +98,7 @@ namespace JenkinsTray.UI.Controls
 
         private void pathEdit_EditValueChanged(object sender, EventArgs e)
         {
-            if (!String.IsNullOrEmpty(pathEdit.Text))
+            if (!string.IsNullOrEmpty(pathEdit.Text))
             {
                 SetPath(pathEdit.Text);
             }
@@ -106,11 +106,11 @@ namespace JenkinsTray.UI.Controls
 
         public void InvalidateData()
         {
-            if (String.IsNullOrEmpty(pathEdit.Text) ||
-                !pathEdit.Text.EndsWith(".wav", true, System.Globalization.CultureInfo.CurrentCulture) ||
-                !System.IO.File.Exists(pathEdit.Text))
+            if (string.IsNullOrEmpty(pathEdit.Text) ||
+                !pathEdit.Text.EndsWith(".wav", true, CultureInfo.CurrentCulture) ||
+                !File.Exists(pathEdit.Text))
             {
-                SetPath(String.Empty);
+                SetPath(string.Empty);
             }
         }
     }

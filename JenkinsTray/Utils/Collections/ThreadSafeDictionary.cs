@@ -6,7 +6,7 @@ namespace JenkinsTray.Utils.Collections
 {
     public class ThreadSafeDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     {
-        private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
 
         public TValue GetOrAdd(TKey key, Func<TValue> defaultValueDelegate)
         {

@@ -1,43 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Reflection;
-using Spring.Context.Support;
-using JenkinsTray.Utils;
-using JenkinsTray.Entities;
 using Common.Logging;
+using DevExpress.XtraEditors;
+using JenkinsTray.Entities;
+using Spring.Context.Support;
 
 namespace JenkinsTray.UI
 {
-    public partial class AuthenticationTokenForm : DevExpress.XtraEditors.XtraForm
+    public partial class AuthenticationTokenForm : XtraForm
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        public Project referenceProject { get; set; }
-
-        public static AuthenticationTokenForm Instance
-        {
-            get
-            {
-                AuthenticationTokenForm instance = (AuthenticationTokenForm)ContextRegistry.GetContext().GetObject("AuthenticationTokenForm");
-                return instance;
-            }
-        }
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public AuthenticationTokenForm()
         {
             InitializeComponent();
         }
 
+        public Project referenceProject { get; set; }
+
+        public static AuthenticationTokenForm Instance
+        {
+            get
+            {
+                var instance =
+                    (AuthenticationTokenForm) ContextRegistry.GetContext().GetObject("AuthenticationTokenForm");
+                return instance;
+            }
+        }
+
         public void UpdateValues()
         {
             if (referenceProject != null)
             {
-                this.Text = string.Format(JenkinsTrayResources.AuthenticateToken_ProjectName, referenceProject.Name);
+                Text = string.Format(JenkinsTrayResources.AuthenticateToken_ProjectName, referenceProject.Name);
                 TokentextBox.Text = referenceProject.AuthenticationToken;
                 CausetextBox.Text = referenceProject.CauseText;
             }

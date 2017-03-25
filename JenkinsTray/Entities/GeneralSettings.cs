@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using JenkinsTray.BusinessComponents;
 using Newtonsoft.Json;
-using JenkinsTray.BusinessComponents;
 
 namespace JenkinsTray.Entities
 {
@@ -11,7 +7,13 @@ namespace JenkinsTray.Entities
     public class GeneralSettings
     {
         // 15 seconds
-        const int DEFAULT_TIME_BETWEEN_UPDATES = 15;
+        private const int DEFAULT_TIME_BETWEEN_UPDATES = 15;
+
+        public GeneralSettings()
+        {
+            RefreshIntervalInSeconds = DEFAULT_TIME_BETWEEN_UPDATES;
+            CheckForUpdates = true;
+        }
 
         [JsonProperty("refreshIntervalInSeconds")]
         public int RefreshIntervalInSeconds { get; set; }
@@ -22,15 +24,12 @@ namespace JenkinsTray.Entities
         [JsonProperty("integrateWithClaimPlugin")]
         public bool IntegrateWithClaimPlugin { get; set; }
 
+        [JsonProperty("showProjectDisplayNameInMainUI")]
+        public bool ShowProjectDisplayNameInMainUI { get; set; }
+
         [JsonProperty("checkForUpdates")]
         public bool CheckForUpdates { get; set; }
 
         public ApplicationUpdateService ApplicationUpdateService { get; set; }
-
-        public GeneralSettings()
-        {
-            RefreshIntervalInSeconds = DEFAULT_TIME_BETWEEN_UPDATES;
-            CheckForUpdates = true;
-        }
     }
 }

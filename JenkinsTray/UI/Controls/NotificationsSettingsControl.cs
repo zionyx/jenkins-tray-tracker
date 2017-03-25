@@ -1,19 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
-using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using JenkinsTray.BusinessComponents;
 using Spring.Context.Support;
 
 namespace JenkinsTray.UI.Controls
 {
-    public partial class NotificationsSettingsControl : DevExpress.XtraEditors.XtraUserControl
+    public partial class NotificationsSettingsControl : XtraUserControl
     {
-        ConfigurationService configurationService;
+        private ConfigurationService configurationService;
 
         public NotificationsSettingsControl()
         {
@@ -28,7 +22,7 @@ namespace JenkinsTray.UI.Controls
             if (DesignMode)
                 return;
 
-            configurationService = (ConfigurationService)ContextRegistry.GetContext().GetObject("ConfigurationService");
+            configurationService = (ConfigurationService) ContextRegistry.GetContext().GetObject("ConfigurationService");
             treatUnstableAsFailedCheckBox.Checked = configurationService.IsTreadUnstableAsFailed();
             enableSoundCheckBox.Checked = configurationService.IsSoundNotificationsEnabled();
             enableSoundCheckBox_CheckedChanged(null, null);
@@ -52,10 +46,10 @@ namespace JenkinsTray.UI.Controls
         {
             notificationSettingsControl1.Enabled =
                 notificationSettingsControl2.Enabled =
-                notificationSettingsControl3.Enabled =
-                notificationSettingsControl4.Enabled =
-                treatUnstableAsFailedCheckBox.Enabled =
-                enableSoundCheckBox.Checked;
+                    notificationSettingsControl3.Enabled =
+                        notificationSettingsControl4.Enabled =
+                            treatUnstableAsFailedCheckBox.Enabled =
+                                enableSoundCheckBox.Checked;
             configurationService.SetSoundNotifications(enableSoundCheckBox.Checked);
         }
 

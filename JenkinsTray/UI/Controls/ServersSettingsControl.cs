@@ -1,16 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
-using System.Windows.Forms;
+using DevExpress.XtraEditors;
 
 namespace JenkinsTray.UI.Controls
 {
-    public partial class ServersSettingsControl : DevExpress.XtraEditors.XtraUserControl
+    public partial class ServersSettingsControl : XtraUserControl
     {
-        ServersSettingsController controller;
+        private ServersSettingsController controller;
 
         public ServersSettingsControl()
         {
@@ -26,7 +21,7 @@ namespace JenkinsTray.UI.Controls
                 return;
 
             controller = new ServersSettingsController(serverListControl, projectListControl,
-                statusTextItem, statusProgressItem);
+                                                       statusTextItem, statusProgressItem);
             serverListControl.Controller = controller;
             projectListControl.Controller = controller;
             controller.Initialize();

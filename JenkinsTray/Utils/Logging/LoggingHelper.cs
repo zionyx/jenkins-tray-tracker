@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-
 using Common.Logging;
 
 namespace JenkinsTray.Utils.Logging
@@ -17,7 +14,7 @@ namespace JenkinsTray.Utils.Logging
                 throw new ArgumentNullException("ex");
 
             logger.Error(ex.GetType().Name + " - " + ex.Message);
-            String prefix = " ";
+            var prefix = " ";
             while (ex.InnerException != null)
             {
                 prefix += " ";
@@ -46,7 +43,7 @@ namespace JenkinsTray.Utils.Logging
             if (logger == null)
                 throw new ArgumentNullException("logger");
 
-            bool exists = Directory.Exists(directory);
+            var exists = Directory.Exists(directory);
 
             logger.Info("-- Logging directory content:");
             logger.Info("Directory: '" + directory + "'");
@@ -54,15 +51,15 @@ namespace JenkinsTray.Utils.Logging
 
             if (exists)
             {
-                string[] files = Directory.GetFiles(directory);
-                foreach (string file in files)
+                var files = Directory.GetFiles(directory);
+                foreach (var file in files)
                 {
-                    FileInfo fileInfo = new FileInfo(file);
+                    var fileInfo = new FileInfo(file);
                     logger.Info("File: '" + file + "' (size=" + fileInfo.Length + ")");
                 }
 
-                string[] directories = Directory.GetDirectories(directory);
-                foreach (string subDirectory in directories)
+                var directories = Directory.GetDirectories(directory);
+                foreach (var subDirectory in directories)
                 {
                     logger.Info("Directory: '" + subDirectory + "'");
                 }

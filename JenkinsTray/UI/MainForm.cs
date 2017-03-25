@@ -1,53 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
+using System.Drawing.Imaging;
+using System.Reflection;
 using System.Windows.Forms;
+using Common.Logging;
+using DevExpress.Utils;
+using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
+using DevExpress.XtraEditors.Controls;
+using DevExpress.XtraGrid.Columns;
+using DevExpress.XtraGrid.Views.Base;
 using JenkinsTray.BusinessComponents;
 using JenkinsTray.Entities;
-using JenkinsTray.Properties;
-using DevExpress.XtraGrid.Views.Base;
-using System.Drawing.Imaging;
-using Common.Logging;
-using System.Reflection;
-using DevExpress.XtraGrid.Views.Grid.ViewInfo;
-using System.Diagnostics;
-using JenkinsTray.Utils.Logging;
-using DevExpress.Utils.Controls;
 using JenkinsTray.Utils;
-using DevExpress.XtraGrid.Columns;
+using JenkinsTray.Utils.Logging;
 using Spring.Context.Support;
-using DevExpress.Utils;
 
 namespace JenkinsTray.UI
 {
-    public partial class MainForm : DevExpress.XtraEditors.XtraForm
+    public partial class MainForm : XtraForm
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private bool exiting;
+        private IDictionary<string, byte[]> iconsByKey;
+        private int lastHoveredDSRowIndex = -1;
+        private readonly Font mainMenuItemFont;
+        private readonly Font normalMenuItemFont;
 
-        public static MainForm Instance
-        {
-            get
-            {
-                MainForm instance = (MainForm)ContextRegistry.GetContext().GetObject("MainForm");
-                return instance;
-            }
-        }
-
-        BindingList<ProjectWrapper> projectsDataSource;
-        bool exiting;
-        int lastHoveredDSRowIndex = -1;
-        IDictionary<string, byte[]> iconsByKey;
-        Font normalMenuItemFont;
-        Font mainMenuItemFont;
-
-        public ConfigurationService ConfigurationService { get; set; }
-        public JenkinsService JenkinsService { get; set; }
-        public ProjectsUpdateService ProjectsUpdateService { get; set; }
-        public ApplicationUpdateService ApplicationUpdateService { get; set; }
+        private BindingList<ProjectWrapper> projectsDataSource;
 
         public MainForm()
         {
@@ -56,16 +38,30 @@ namespace JenkinsTray.UI
             mainMenuItemFont = new Font(openProjectPageMenuItem.Font, FontStyle.Bold);
         }
 
+        public static MainForm Instance
+        {
+            get
+            {
+                var instance = (MainForm) ContextRegistry.GetContext().GetObject("MainForm");
+                return instance;
+            }
+        }
+
+        public ConfigurationService ConfigurationService { get; set; }
+        public JenkinsService JenkinsService { get; set; }
+        public ProjectsUpdateService ProjectsUpdateService { get; set; }
+        public ApplicationUpdateService ApplicationUpdateService { get; set; }
+
         private void Initialize()
         {
             ConfigurationService.ConfigurationUpdated += configurationService_ConfigurationUpdated;
             ProjectsUpdateService.ProjectsUpdated += updateService_ProjectsUpdated;
 
             Disposed += delegate
-            {
-                ConfigurationService.ConfigurationUpdated -= configurationService_ConfigurationUpdated;
-                ProjectsUpdateService.ProjectsUpdated -= updateService_ProjectsUpdated;
-            };
+                        {
+                            ConfigurationService.ConfigurationUpdated -= configurationService_ConfigurationUpdated;
+                            ProjectsUpdateService.ProjectsUpdated -= updateService_ProjectsUpdated;
+                        };
         }
 
         protected override void OnLoad(EventArgs e)
@@ -77,7 +73,7 @@ namespace JenkinsTray.UI
             LoadProjects();
         }
 
-        void configurationService_ConfigurationUpdated()
+        private void configurationService_ConfigurationUpdated()
         {
             UpdateClaimPluginIntegration();
             LoadProjects();
@@ -85,18 +81,18 @@ namespace JenkinsTray.UI
                 ResetIcon();
         }
 
-        private delegate void ProjectsUpdatedDelegate();
         private void updateService_ProjectsUpdated()
         {
             Delegate del = new ProjectsUpdatedDelegate(OnProjectsUpdated);
             BeginInvoke(del);
         }
+
         private void OnProjectsUpdated()
         {
             UpdateProjects();
         }
 
-        private void settingsButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void settingsButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
             SettingsForm.Instance.ShowDialog();
         }
@@ -105,11 +101,12 @@ namespace JenkinsTray.UI
         {
             projectsDataSource = new BindingList<ProjectWrapper>();
 
-            foreach (Server server in ConfigurationService.Servers)
+            foreach (var server in ConfigurationService.Servers)
             {
-                foreach (Project project in server.Projects)
+                foreach (var project in server.Projects)
                 {
-                    ProjectWrapper wrapper = new ProjectWrapper(project);
+                    var wrapper = new ProjectWrapper(project, 
+                        ConfigurationService.GeneralSettings.ShowProjectDisplayNameInMainUI);
                     projectsDataSource.Add(wrapper);
                 }
             }
@@ -132,7 +129,7 @@ namespace JenkinsTray.UI
             lastCheckBarStaticItem.Caption = string.Format(JenkinsTrayResources.LastCheck_Format, DateTime.Now);
         }
 
-        private void refreshButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void refreshButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
             ProjectsUpdateService.UpdateProjects();
         }
@@ -153,7 +150,7 @@ namespace JenkinsTray.UI
             Application.Exit();
         }
 
-        private void exitButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void exitButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
             Exit();
         }
@@ -164,8 +161,8 @@ namespace JenkinsTray.UI
             {
                 if (e.Column == statusGridColumn)
                 {
-                    ProjectWrapper projectWrapper = (ProjectWrapper)projectsDataSource[e.ListSourceRowIndex];
-                    byte[] imgBytes = iconsByKey[projectWrapper.Project.Status.Key];
+                    var projectWrapper = projectsDataSource[e.ListSourceRowIndex];
+                    var imgBytes = iconsByKey[projectWrapper.Project.Status.Key];
                     e.Value = imgBytes;
                 }
             }
@@ -185,47 +182,48 @@ namespace JenkinsTray.UI
 
         private void LoadIcon(BuildStatusEnum statusValue, bool isInProgress, bool isStuck)
         {
-            BuildStatus status = new BuildStatus(statusValue, isInProgress, isStuck);
+            var status = new BuildStatus(statusValue, isInProgress, isStuck);
             if (iconsByKey.ContainsKey(status.Key))
                 return;
 
             try
             {
-                string resourceName = string.Format("JenkinsTray.Resources.StatusIcons.{0}.gif", status.Key);
-                Image img = ResourceImageHelper.CreateImageFromResources(resourceName, GetType().Assembly);
-                byte[] imgBytes = DevExpress.XtraEditors.Controls.ByteImageConverter.ToByteArray(img, ImageFormat.Gif);
+                var resourceName = string.Format("JenkinsTray.Resources.StatusIcons.{0}.gif", status.Key);
+                var img = ResourceImageHelper.CreateImageFromResources(resourceName, GetType().Assembly);
+                var imgBytes = ByteImageConverter.ToByteArray(img, ImageFormat.Gif);
                 iconsByKey.Add(status.Key, imgBytes);
             }
             catch (Exception ex)
             {
                 XtraMessageBox.Show(JenkinsTrayResources.FailedLoadingIcons_Text,
-                    JenkinsTrayResources.FailedLoadingIcons_Caption,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    JenkinsTrayResources.FailedLoadingIcons_Caption,
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LoggingHelper.LogError(logger, ex);
                 throw new Exception("Failed loading icon: " + status, ex);
             }
         }
 
-        private void aboutButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void aboutButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
             AboutForm.Instance.ShowDialog();
         }
 
         private void projectsGridView_MouseMove(object sender, MouseEventArgs e)
         {
-            Point pt = new Point(e.X, e.Y);
-            GridHitInfo ghi = projectsGridView.CalcHitInfo(pt);
+            var pt = new Point(e.X, e.Y);
+            var ghi = projectsGridView.CalcHitInfo(pt);
             if (ghi.InRowCell)
             {
-                int dsRowIndex = projectsGridView.GetDataSourceRowIndex(ghi.RowHandle);
+                var dsRowIndex = projectsGridView.GetDataSourceRowIndex(ghi.RowHandle);
                 if (lastHoveredDSRowIndex != dsRowIndex)
                 {
-                    ProjectWrapper project = projectsDataSource[dsRowIndex];
-                    string message = JenkinsTrayResources.ResourceManager
-                        .GetString("BuildStatus_" + project.Project.Status.Key);
+                    var project = projectsDataSource[dsRowIndex];
+                    var message = JenkinsTrayResources.ResourceManager
+                                                      .GetString("BuildStatus_" + project.Project.Status.Key);
                     if (project.Project.Status.IsStuck && project.Project.Queue.InQueue)
                     {
-                        message += string.Format(JenkinsTrayResources.BuildDetails_InQueue_Since, project.Project.Queue.InQueueSince);
+                        message += string.Format(JenkinsTrayResources.BuildDetails_InQueue_Since,
+                                                 project.Project.Queue.InQueueSince);
                     }
                     toolTip.SetToolTip(projectsGridControl, message);
                 }
@@ -239,16 +237,16 @@ namespace JenkinsTray.UI
 
         private void projectsGridView_DoubleClick(object sender, EventArgs e)
         {
-            DXMouseEventArgs mouseEventArgs = e as DXMouseEventArgs;
-            Point pt = new Point(mouseEventArgs.X, mouseEventArgs.Y);
-            GridHitInfo hi = projectsGridView.CalcHitInfo(pt);
+            var mouseEventArgs = e as DXMouseEventArgs;
+            var pt = new Point(mouseEventArgs.X, mouseEventArgs.Y);
+            var hi = projectsGridView.CalcHitInfo(pt);
 
             if (hi.InRowCell)
             {
-                Project project = GetSelectedProject();
+                var project = GetSelectedProject();
                 if (project == null)
                     return;
-                bool shouldOpenConsolePage = ShouldOpenConsolePage(project);
+                var shouldOpenConsolePage = ShouldOpenConsolePage(project);
                 if (shouldOpenConsolePage)
                     OpenProjectConsolePage(project);
                 else
@@ -260,14 +258,14 @@ namespace JenkinsTray.UI
         {
             if (project == null)
                 return false;
-            BuildStatus status = project.Status;
-            bool res = BuildStatusUtils.IsErrorBuild(status) || status.IsInProgress;
+            var status = project.Status;
+            var res = BuildStatusUtils.IsErrorBuild(status) || status.IsInProgress;
             return res;
         }
 
         private void OpenSelectedProjectPage()
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             OpenProjectPage(project);
         }
 
@@ -280,7 +278,7 @@ namespace JenkinsTray.UI
 
         private void OpenSelectedProjectConsolePage()
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             OpenProjectConsolePage(project);
         }
 
@@ -288,307 +286,8 @@ namespace JenkinsTray.UI
         {
             if (project == null)
                 return;
-            string url = JenkinsService.GetConsolePage(project);
+            var url = JenkinsService.GetConsolePage(project);
             UIUtils.OpenWebPage(url, logger);
-        }
-
-        private class ProjectWrapper
-        {
-            public ProjectWrapper(Project project)
-            {
-                this.Project = project;
-            }
-
-            public Project Project { get; private set; }
-
-            public string Server
-            {
-                get { return Project.Server.DisplayText; }
-            }
-            public string Name
-            {
-                get { return Project.Name; }
-            }
-            public string Url
-            {
-                get { return Uri.UnescapeDataString(Project.Url); }
-            }
-
-            public string buildDetailsStr
-            {
-                get
-                {
-                    string details = string.Empty;
-                    try
-                    {
-                        details = FormatBuildDetailsAndSummary();
-                    }
-                    catch (Exception ex)
-                    {
-                        LoggingHelper.LogError(logger, ex);
-                        XtraMessageBox.Show(string.Format(JenkinsTrayResources.RunBuildFailed_Text, ex.Message),
-                            JenkinsTrayResources.RunBuildFailed_Caption);
-                    }
-                    return details;
-                }
-            }
-            public string lastBuildStr
-            {
-                get { return FormatBuildDetails(LastBuild); }
-            }
-
-            public BuildDetails LastBuild
-            {
-                get { return Project.LastBuild; }
-            }
-
-            public BuildDetails LastSuccessBuild
-            {
-                get { return Project.LastSuccessfulBuild; }
-            }
-            public string LastSuccessBuildStr
-            {
-                get { return FormatBuildDetails(LastSuccessBuild); }
-            }
-            public BuildDetails LastFailureBuild
-            {
-                get { return Project.LastFailedBuild; }
-            }
-            public string LastFailureBuildStr
-            {
-                get { return FormatBuildDetails(LastFailureBuild); }
-            }
-            public string LastSuccessUsers
-            {
-                get { return FormatUsers(Project.LastSuccessfulBuild); }
-            }
-            public string LastFailureUsers
-            {
-                get { return FormatUsers(Project.LastFailedBuild); }
-            }
-            public string ClaimedBy
-            {
-                get
-                {
-                    // get a copy of the reference to avoid a race condition
-                    var lastFailedBuild = Project.LastFailedBuild;
-                    if (lastFailedBuild == null || lastFailedBuild.ClaimDetails == null)
-                        return "";
-                    return Project.LastFailedBuild.ClaimDetails.Assignee;
-                }
-            }
-            public string ClaimReason
-            {
-                get
-                {
-                    // get a copy of the reference to avoid a race condition
-                    var lastFailedBuild = Project.LastFailedBuild;
-                    if (lastFailedBuild == null || lastFailedBuild.ClaimDetails == null)
-                        return "";
-                    return Project.LastFailedBuild.ClaimDetails.Reason;
-                }
-            }
-
-            private string FormatBuildDetailsAndSummary()
-            {
-                string details = string.Empty;
-                string buildCausesSummary = string.Empty;
-
-                // get a copy of the reference to avoid a race condition
-                BuildStatus projectStatus = Project.Status;
-                BuildDetails lastBuild = Project.LastBuild;
-
-                if (lastBuild != null)
-                {
-                    // get a copy of the reference to avoid a race condition
-                    BuildCauses lastBuildCauses = lastBuild.Causes;
-
-                    if (lastBuildCauses != null)
-                    {
-                        if (projectStatus.IsInProgress)
-                        {
-                            TimeSpan progressts = lastBuild.EstimatedDuration;
-                            string timeleft = FormatEstimatedDuration(lastBuild);
-
-                            foreach (BuildCause cause in lastBuildCauses.Causes)
-                            {
-                                if (lastBuildCauses.HasUniqueCauses == false)
-                                {
-                                    buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_MultipleSources;
-                                    break;
-                                }
-
-                                switch (cause.Cause)
-                                {
-                                    case BuildCauseEnum.SCM:
-                                        {
-                                            if (lastBuild.Users.Count == 0)
-                                            {
-                                                buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_SCM;
-                                            }
-                                            else if (lastBuild.Users.Count > 1)
-                                            {
-                                                buildCausesSummary = string.Format(JenkinsTrayResources.BuildDetails_Cause_SCM_Multiple, lastBuild.Users.Count);
-                                            }
-                                            else
-                                            {
-                                                buildCausesSummary = string.Format(JenkinsTrayResources.BuildDetails_Cause_SCM_Single, FormatUsers(lastBuild));
-                                            }
-                                        }
-                                        break;
-                                    case BuildCauseEnum.User:
-                                        {
-                                            buildCausesSummary = string.Format(JenkinsTrayResources.BuildDetails_Cause_User, cause.Starter);
-                                        }
-                                        break;
-                                    case BuildCauseEnum.RemoteHost:
-                                        {
-                                            buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_RemoteHost;
-                                        }
-                                        break;
-                                    case BuildCauseEnum.Timer:
-                                        {
-                                            buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_Timer;
-                                        }
-                                        break;
-                                    case BuildCauseEnum.UpstreamProject:
-                                        {
-                                            buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_UpstreamProject;
-                                        }
-                                        break;
-                                }
-                            }
-                            details = timeleft + buildCausesSummary;
-                        }
-                        else
-                        {
-                            if (projectStatus.Value == BuildStatusEnum.Successful)
-                            {
-                                details = FormatDuration(lastBuild);
-                            }
-                            else if (projectStatus.Value == BuildStatusEnum.Unstable)
-                            {
-                                details = projectStatus.Value.ToString() + ".";
-                            }
-                            else if (projectStatus.Value == BuildStatusEnum.Disabled)
-                            {
-                                details = string.Format("{0}. ", JenkinsTrayResources.BuildStatus_Disabled);
-                            }
-                            else
-                            {
-                                details = projectStatus.Value.ToString() + ". ";
-                                if (lastBuild.Users != null && !lastBuild.Users.IsEmpty)
-                                {
-                                    details += string.Format(JenkinsTrayResources.BuildDetails_BrokenBy, FormatUsers(lastBuild));
-                                }
-                            }
-                        }
-                        if (Project.Queue.InQueue)
-                        {
-                            if (!projectStatus.IsInProgress)
-                            {
-                                details += string.Format(JenkinsTrayResources.BuildDetails_InQueue_Why, Project.Queue.Why);
-                            }
-                        }
-                        if (projectStatus.IsStuck)
-                        {
-                            details = "Queued, possibly stuck. " + string.Format(JenkinsTrayResources.BuildDetails_InQueue_Why, Project.Queue.Why);
-                        }
-                    }
-                }
-
-                return details;
-            }
-
-            private string FormatBuildDetailsWithDisplayName(BuildDetails details)
-            {
-                if (details == null)
-                    return "-";
-                string shortDisplayName = details.DisplayName.Replace(Project.Name, string.Empty).Trim();
-
-                string res = string.Empty;
-                if (shortDisplayName.Equals(string.Concat("#", details.Number.ToString())))
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_Format_NumberDate,
-                           details.Number.ToString(), details.Time.ToLocalTime());
-                }
-                else
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_Format_DisplayName_NumberDate,
-                           shortDisplayName, details.Number.ToString(), details.Time.ToLocalTime());
-                }
-                return res;
-            }
-
-            private string FormatBuildDetails(BuildDetails details)
-            {
-                if (details == null)
-                    return "-";
-                string res = string.Format(JenkinsTrayResources.BuildDetails_Format_NumberDate,
-                       details.Number, details.Time.ToLocalTime());
-                return res;
-            }
-
-            private string FormatUsers(BuildDetails details)
-            {
-                if (details == null)
-                    return "-";
-                string res = StringUtils.Join(details.Users, JenkinsTrayResources.BuildDetails_UserSeparator);
-                return res;
-            }
-
-            private string FormatDuration(BuildDetails details)
-            {
-                if (details == null)
-                    return string.Empty;
-                string res = string.Empty;
-                if (details.Duration.TotalHours > 1)
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_Duration_HHMM, 
-                        details.Duration.Days * 24 + details.Duration.Hours, details.Duration.Minutes);
-                }
-                else if (details.Duration.TotalMinutes < 1)
-                {
-                    res = JenkinsTrayResources.BuildDetails_Duration_0M;
-                }
-                else
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_Duration_MM,
-                        Math.Max(details.Duration.Minutes + (details.Duration.Seconds >= 30 ? 1 : 0), 1));
-                }
-                return res;
-            }
-
-            private string FormatEstimatedDuration(BuildDetails details)
-            {
-                if (details == null)
-                    return string.Empty;
-                string res = string.Empty;
-                DateTime endtime = details.Time.Add(details.EstimatedDuration);
-                TimeSpan timeleft = TimeSpan.FromTicks(endtime.Subtract(DateTime.UtcNow).Ticks);
-
-                if (timeleft.TotalHours >= 1)
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_HHMM_Remaining, 
-                        timeleft.Days * 24 + timeleft.Hours, timeleft.Minutes);
-                }
-                else if (timeleft.TotalHours < -1)
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_HHMM_LongerThanUsual, 
-                        Math.Abs(timeleft.Days * 24 + timeleft.Hours), Math.Abs(timeleft.Minutes));
-                }
-                else if (timeleft.TotalHours < 0)
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_MM_LongerThanUsual, 
-                        Math.Abs(timeleft.Minutes));
-                }
-                else
-                {
-                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_MM_Remaining, 
-                        timeleft.Minutes);
-                }
-                return res;
-            }
         }
 
         private void openProjectPageMenuItem_Click(object sender, EventArgs e)
@@ -603,7 +302,7 @@ namespace JenkinsTray.UI
 
         private void runBuildMenuItem_Click(object sender, EventArgs e)
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             if (project == null)
                 return;
             try
@@ -614,18 +313,19 @@ namespace JenkinsTray.UI
             {
                 LoggingHelper.LogError(logger, ex);
                 XtraMessageBox.Show(string.Format(JenkinsTrayResources.RunBuildFailed_Text, ex.Message),
-                    JenkinsTrayResources.RunBuildFailed_Caption);
+                                    JenkinsTrayResources.RunBuildFailed_Caption);
             }
         }
 
         private void stopBuildMenuItem_Click(object sender, EventArgs e)
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             if (project == null)
                 return;
             try
             {
-                if (project.AllBuildDetails != null && project.AllBuildDetails.Status != null && project.AllBuildDetails.Status.IsInProgress )
+                if (project.AllBuildDetails != null && project.AllBuildDetails.Status != null &&
+                    project.AllBuildDetails.Status.IsInProgress)
                 {
                     JenkinsService.SafeStopBuild(project);
                 }
@@ -638,23 +338,23 @@ namespace JenkinsTray.UI
             {
                 LoggingHelper.LogError(logger, ex);
                 XtraMessageBox.Show(string.Format(JenkinsTrayResources.StopBuildFailed_Text, ex.Message),
-                    JenkinsTrayResources.StopBuildFailed_Caption);
+                                    JenkinsTrayResources.StopBuildFailed_Caption);
             }
         }
 
         private Project GetSelectedProject()
         {
-            int[] rowHandles = projectsGridView.GetSelectedRows();
+            var rowHandles = projectsGridView.GetSelectedRows();
             if (rowHandles.Length != 1)
                 return null;
 
-            int rowHandle = rowHandles[0];
+            var rowHandle = rowHandles[0];
             Project project = null;
 
             if (rowHandle >= 0)
             {
-                int dsRowIndex = projectsGridView.GetDataSourceRowIndex(rowHandle);
-                ProjectWrapper projectWrapper = projectsDataSource[dsRowIndex];
+                var dsRowIndex = projectsGridView.GetDataSourceRowIndex(rowHandle);
+                var projectWrapper = projectsDataSource[dsRowIndex];
                 project = projectWrapper.Project;
             }
             return project;
@@ -670,7 +370,7 @@ namespace JenkinsTray.UI
                 Instance.Show();
         }
 
-        private void checkUpdatesButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void checkUpdatesButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
             bool hasUpdates;
             try
@@ -680,23 +380,23 @@ namespace JenkinsTray.UI
             }
             catch (Exception ex)
             {
-                string errorMessage = String.Format(JenkinsTrayResources.ErrorBoxMessage, ex.Message);
+                var errorMessage = string.Format(JenkinsTrayResources.ErrorBoxMessage, ex.Message);
                 XtraMessageBox.Show(errorMessage, JenkinsTrayResources.ErrorBoxCaption,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             if (hasUpdates == false)
             {
                 XtraMessageBox.Show(JenkinsTrayResources.ApplicationUpdates_NoUpdate_Text,
-                    JenkinsTrayResources.ApplicationUpdates_Caption,
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    JenkinsTrayResources.ApplicationUpdates_Caption,
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void acknowledgeMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            Project project = GetSelectedProject();
+            var menuItem = sender as ToolStripMenuItem;
+            var project = GetSelectedProject();
             if (project == null)
                 return;
 
@@ -706,7 +406,7 @@ namespace JenkinsTray.UI
             }
             else
             {
-                BuildStatus projectStatus = project.Status;
+                var projectStatus = project.Status;
                 if (projectStatus.IsStuck || projectStatus.Value >= BuildStatusEnum.Indeterminate)
                     TrayNotifier.Instance.AcknowledgeStatus(project, projectStatus);
             }
@@ -715,7 +415,7 @@ namespace JenkinsTray.UI
 
         private void stopAcknowledgingMenuItem_Click(object sender, EventArgs e)
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             if (project == null)
                 return;
             TrayNotifier.Instance.ClearAcknowledgedStatus(project);
@@ -723,19 +423,19 @@ namespace JenkinsTray.UI
 
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            Project project = GetSelectedProject();
-            bool isProjectSelected = project != null;
+            var project = GetSelectedProject();
+            var isProjectSelected = project != null;
 
             openProjectPageMenuItem.Enabled
                 = openConsolePageMenuItem.Enabled
-                = runBuildMenuItem.Enabled
-                = stopBuildMenuItem.Enabled
-                = acknowledgeStatusMenuItem.Enabled
-                = claimBuildMenuItem.Enabled
-                = acknowledgeProjectMenuItem.Enabled
-                = setAuthenticationTokenMenuItem.Enabled
-                = removeProjectMenuItem.Enabled
-                = isProjectSelected;
+                    = runBuildMenuItem.Enabled
+                        = stopBuildMenuItem.Enabled
+                            = acknowledgeStatusMenuItem.Enabled
+                                = claimBuildMenuItem.Enabled
+                                    = acknowledgeProjectMenuItem.Enabled
+                                        = setAuthenticationTokenMenuItem.Enabled
+                                            = removeProjectMenuItem.Enabled
+                                                = isProjectSelected;
 
             if (!isProjectSelected)
             {
@@ -743,7 +443,7 @@ namespace JenkinsTray.UI
             }
 
             // get a copy of the reference to avoid a race condition
-            BuildStatus projectStatus = project.Status;
+            var projectStatus = project.Status;
 
             stopBuildMenuItem.Text = "&Abort build";
             if (!projectStatus.IsInProgress && project.Queue.InQueue)
@@ -766,10 +466,11 @@ namespace JenkinsTray.UI
             }
             else
             {
-                acknowledgeStatusMenuItem.Enabled = (projectStatus.IsStuck || projectStatus.Value >= BuildStatusEnum.Indeterminate);
+                acknowledgeStatusMenuItem.Enabled = projectStatus.IsStuck ||
+                                                    projectStatus.Value >= BuildStatusEnum.Indeterminate;
             }
 
-            bool shouldOpenConsolePage = ShouldOpenConsolePage(project);
+            var shouldOpenConsolePage = ShouldOpenConsolePage(project);
             if (shouldOpenConsolePage)
             {
                 openProjectPageMenuItem.Font = normalMenuItemFont;
@@ -784,15 +485,15 @@ namespace JenkinsTray.UI
             // Claim
             claimBuildMenuItem.Visible
                 = toolStripSeparator2.Visible
-                = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin;
+                    = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin;
             claimBuildMenuItem.Enabled
                 = toolStripSeparator2.Enabled
-                = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin && project.LastFailedBuild != null;
+                    = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin && project.LastFailedBuild != null;
         }
 
         private void removeProjectMenuItem_Click(object sender, EventArgs e)
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             if (project == null)
                 return;
             ConfigurationService.RemoveProject(project);
@@ -800,10 +501,10 @@ namespace JenkinsTray.UI
 
         private void claimBuildMenuItem_Click(object sender, EventArgs e)
         {
-            Project project = GetSelectedProject();
+            var project = GetSelectedProject();
             if (project == null)
                 return;
-            BuildDetails lastFailedBuild = project.LastFailedBuild;
+            var lastFailedBuild = project.LastFailedBuild;
             if (lastFailedBuild == null)
                 return;
 
@@ -817,7 +518,7 @@ namespace JenkinsTray.UI
 
         private void projectsGridView_CustomColumnSort(object sender, CustomColumnSortEventArgs e)
         {
-            int? res = DoCustomColumnSort(sender, e);
+            var res = DoCustomColumnSort(sender, e);
             if (res == null)
                 return;
             e.Handled = true;
@@ -826,21 +527,21 @@ namespace JenkinsTray.UI
 
         private int? DoCustomColumnSort(object sender, CustomColumnSortEventArgs e)
         {
-            DateTime? date1 = GetBuildDate(e.Column, e.ListSourceRowIndex1);
-            DateTime? date2 = GetBuildDate(e.Column, e.ListSourceRowIndex2);
+            var date1 = GetBuildDate(e.Column, e.ListSourceRowIndex1);
+            var date2 = GetBuildDate(e.Column, e.ListSourceRowIndex2);
             if (date1 == null && date2 == null)
                 return null;
             if (date1 == null)
                 return -1;
             if (date2 == null)
                 return 1;
-            int res = date1.Value.CompareTo(date2.Value);
+            var res = date1.Value.CompareTo(date2.Value);
             return res;
         }
 
         private DateTime? GetBuildDate(GridColumn column, int listSourceRowIndex)
         {
-            BuildDetails buildDetails = GetBuildDetails(column, listSourceRowIndex);
+            var buildDetails = GetBuildDetails(column, listSourceRowIndex);
             if (buildDetails == null)
                 return null;
             return buildDetails.Time;
@@ -848,7 +549,7 @@ namespace JenkinsTray.UI
 
         private BuildDetails GetBuildDetails(GridColumn column, int listSourceRowIndex)
         {
-            ProjectWrapper projectWrapper = (ProjectWrapper)projectsDataSource[listSourceRowIndex];
+            var projectWrapper = projectsDataSource[listSourceRowIndex];
             if (column == lastSuccessGridColumn)
                 return projectWrapper.LastSuccessBuild;
             if (column == lastFailureGridColumn)
@@ -864,7 +565,6 @@ namespace JenkinsTray.UI
                 ProjectsUpdateService.UpdateProjects();
         }
 
-        private delegate void UpdateIconDelegate(Icon icon);
         public void UpdateIcon(Icon icon)
         {
             if (ConfigurationService.GeneralSettings.UpdateMainWindowIcon == false)
@@ -873,23 +573,23 @@ namespace JenkinsTray.UI
             if (InvokeRequired)
             {
                 Delegate del = new UpdateIconDelegate(UpdateIcon);
-                MainForm.Instance.BeginInvoke(del, icon);
+                Instance.BeginInvoke(del, icon);
                 return;
             }
 
-            this.Icon = icon;
+            Icon = icon;
         }
 
         private void ResetIcon()
         {
             // copied from the designer code
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
-            this.Icon = ((Icon)(resources.GetObject("$this.Icon")));
+            var resources = new ComponentResourceManager(typeof(MainForm));
+            Icon = (Icon) resources.GetObject("$this.Icon");
         }
 
         private void UpdateClaimPluginIntegration()
         {
-            bool integrate = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin;
+            var integrate = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin;
             if (integrate)
             {
                 if (claimedByGridColumn.VisibleIndex == -1)
@@ -912,8 +612,8 @@ namespace JenkinsTray.UI
 
         private void acknowledgeProjectMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            Project project = GetSelectedProject();
+            var menuItem = sender as ToolStripMenuItem;
+            var project = GetSelectedProject();
             if (project == null)
                 return;
 
@@ -923,12 +623,336 @@ namespace JenkinsTray.UI
 
         private void setAuthenticationTokenMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
-            Project project = GetSelectedProject();
+            var menuItem = sender as ToolStripMenuItem;
+            var project = GetSelectedProject();
             if (project == null)
                 return;
 
             AuthenticationTokenForm.ShowDialogOrFocus(project);
         }
+
+        private delegate void ProjectsUpdatedDelegate();
+
+        private class ProjectWrapper
+        {
+            private bool ShowDisplayname { get; set; }
+
+            public ProjectWrapper(Project project, bool showDisplayName)
+            {
+                Project = project;
+                ShowDisplayname = showDisplayName;
+            }
+
+            public Project Project { get; }
+
+            public string Server
+            {
+                get { return Project.Server.DisplayText; }
+            }
+
+            public string Name
+            {
+                get { return ShowDisplayname && string.IsNullOrEmpty(Project.DisplayName) ? Project.Name : Project.DisplayName; }
+            }
+
+            public string Url
+            {
+                get { return Uri.UnescapeDataString(Project.Url); }
+            }
+
+            public string buildDetailsStr
+            {
+                get
+                {
+                    var details = string.Empty;
+                    try
+                    {
+                        details = FormatBuildDetailsAndSummary();
+                    }
+                    catch (Exception ex)
+                    {
+                        LoggingHelper.LogError(logger, ex);
+                        XtraMessageBox.Show(string.Format(JenkinsTrayResources.RunBuildFailed_Text, ex.Message),
+                                            JenkinsTrayResources.RunBuildFailed_Caption);
+                    }
+                    return details;
+                }
+            }
+
+            public string lastBuildStr
+            {
+                get { return FormatBuildDetails(LastBuild); }
+            }
+
+            public BuildDetails LastBuild
+            {
+                get { return Project.LastBuild; }
+            }
+
+            public BuildDetails LastSuccessBuild
+            {
+                get { return Project.LastSuccessfulBuild; }
+            }
+
+            public string LastSuccessBuildStr
+            {
+                get { return FormatBuildDetails(LastSuccessBuild); }
+            }
+
+            public BuildDetails LastFailureBuild
+            {
+                get { return Project.LastFailedBuild; }
+            }
+
+            public string LastFailureBuildStr
+            {
+                get { return FormatBuildDetails(LastFailureBuild); }
+            }
+
+            public string LastSuccessUsers
+            {
+                get { return FormatUsers(Project.LastSuccessfulBuild); }
+            }
+
+            public string LastFailureUsers
+            {
+                get { return FormatUsers(Project.LastFailedBuild); }
+            }
+
+            public string ClaimedBy
+            {
+                get
+                {
+                    // get a copy of the reference to avoid a race condition
+                    var lastFailedBuild = Project.LastFailedBuild;
+                    if (lastFailedBuild == null || lastFailedBuild.ClaimDetails == null)
+                        return "";
+                    return Project.LastFailedBuild.ClaimDetails.Assignee;
+                }
+            }
+
+            public string ClaimReason
+            {
+                get
+                {
+                    // get a copy of the reference to avoid a race condition
+                    var lastFailedBuild = Project.LastFailedBuild;
+                    if (lastFailedBuild == null || lastFailedBuild.ClaimDetails == null)
+                        return "";
+                    return Project.LastFailedBuild.ClaimDetails.Reason;
+                }
+            }
+
+            private string FormatBuildDetailsAndSummary()
+            {
+                var details = string.Empty;
+                var buildCausesSummary = string.Empty;
+
+                // get a copy of the reference to avoid a race condition
+                var projectStatus = Project.Status;
+                var lastBuild = Project.LastBuild;
+
+                if (lastBuild != null)
+                {
+                    // get a copy of the reference to avoid a race condition
+                    var lastBuildCauses = lastBuild.Causes;
+
+                    if (lastBuildCauses != null)
+                    {
+                        if (projectStatus.IsInProgress)
+                        {
+                            var progressts = lastBuild.EstimatedDuration;
+                            var timeleft = FormatEstimatedDuration(lastBuild);
+
+                            foreach (var cause in lastBuildCauses.Causes)
+                            {
+                                if (lastBuildCauses.HasUniqueCauses == false)
+                                {
+                                    buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_MultipleSources;
+                                    break;
+                                }
+
+                                switch (cause.Cause)
+                                {
+                                    case BuildCauseEnum.SCM:
+                                    {
+                                        if (lastBuild.Users.Count == 0)
+                                        {
+                                            buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_SCM;
+                                        }
+                                        else if (lastBuild.Users.Count > 1)
+                                        {
+                                            buildCausesSummary =
+                                                string.Format(JenkinsTrayResources.BuildDetails_Cause_SCM_Multiple,
+                                                              lastBuild.Users.Count);
+                                        }
+                                        else
+                                        {
+                                            buildCausesSummary =
+                                                string.Format(JenkinsTrayResources.BuildDetails_Cause_SCM_Single,
+                                                              FormatUsers(lastBuild));
+                                        }
+                                    }
+                                        break;
+                                    case BuildCauseEnum.User:
+                                    {
+                                        buildCausesSummary = string.Format(
+                                            JenkinsTrayResources.BuildDetails_Cause_User, cause.Starter);
+                                    }
+                                        break;
+                                    case BuildCauseEnum.RemoteHost:
+                                    {
+                                        buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_RemoteHost;
+                                    }
+                                        break;
+                                    case BuildCauseEnum.Timer:
+                                    {
+                                        buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_Timer;
+                                    }
+                                        break;
+                                    case BuildCauseEnum.UpstreamProject:
+                                    {
+                                        buildCausesSummary = JenkinsTrayResources.BuildDetails_Cause_UpstreamProject;
+                                    }
+                                        break;
+                                }
+                            }
+                            details = timeleft + buildCausesSummary;
+                        }
+                        else
+                        {
+                            if (projectStatus.Value == BuildStatusEnum.Successful)
+                            {
+                                details = FormatDuration(lastBuild);
+                            }
+                            else if (projectStatus.Value == BuildStatusEnum.Unstable)
+                            {
+                                details = projectStatus.Value + ".";
+                            }
+                            else if (projectStatus.Value == BuildStatusEnum.Disabled)
+                            {
+                                details = string.Format("{0}. ", JenkinsTrayResources.BuildStatus_Disabled);
+                            }
+                            else
+                            {
+                                details = projectStatus.Value + ". ";
+                                if (lastBuild.Users != null && !lastBuild.Users.IsEmpty)
+                                {
+                                    details += string.Format(JenkinsTrayResources.BuildDetails_BrokenBy,
+                                                             FormatUsers(lastBuild));
+                                }
+                            }
+                        }
+                        if (Project.Queue.InQueue)
+                        {
+                            if (!projectStatus.IsInProgress)
+                            {
+                                details += string.Format(JenkinsTrayResources.BuildDetails_InQueue_Why,
+                                                         Project.Queue.Why);
+                            }
+                        }
+                        if (projectStatus.IsStuck)
+                        {
+                            details = "Queued, possibly stuck. " +
+                                      string.Format(JenkinsTrayResources.BuildDetails_InQueue_Why, Project.Queue.Why);
+                        }
+                    }
+                }
+
+                return details;
+            }
+
+            private string FormatBuildDetailsWithDisplayName(BuildDetails details)
+            {
+                if (details == null)
+                    return "-";
+                var shortDisplayName = details.DisplayName.Replace(Project.Name, string.Empty).Trim();
+
+                var res = string.Empty;
+                if (shortDisplayName.Equals(string.Concat("#", details.Number.ToString())))
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_Format_NumberDate,
+                                        details.Number, details.Time.ToLocalTime());
+                }
+                else
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_Format_DisplayName_NumberDate,
+                                        shortDisplayName, details.Number, details.Time.ToLocalTime());
+                }
+                return res;
+            }
+
+            private string FormatBuildDetails(BuildDetails details)
+            {
+                if (details == null)
+                    return "-";
+                var res = string.Format(JenkinsTrayResources.BuildDetails_Format_NumberDate,
+                                        details.Number, details.Time.ToLocalTime());
+                return res;
+            }
+
+            private string FormatUsers(BuildDetails details)
+            {
+                if (details == null)
+                    return "-";
+                var res = StringUtils.Join(details.Users, JenkinsTrayResources.BuildDetails_UserSeparator);
+                return res;
+            }
+
+            private string FormatDuration(BuildDetails details)
+            {
+                if (details == null)
+                    return string.Empty;
+                var res = string.Empty;
+                if (details.Duration.TotalHours > 1)
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_Duration_HHMM,
+                                        details.Duration.Days*24 + details.Duration.Hours, details.Duration.Minutes);
+                }
+                else if (details.Duration.TotalMinutes < 1)
+                {
+                    res = JenkinsTrayResources.BuildDetails_Duration_0M;
+                }
+                else
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_Duration_MM,
+                                        Math.Max(details.Duration.Minutes + (details.Duration.Seconds >= 30 ? 1 : 0), 1));
+                }
+                return res;
+            }
+
+            private string FormatEstimatedDuration(BuildDetails details)
+            {
+                if (details == null)
+                    return string.Empty;
+                var res = string.Empty;
+                var endtime = details.Time.Add(details.EstimatedDuration);
+                var timeleft = TimeSpan.FromTicks(endtime.Subtract(DateTime.UtcNow).Ticks);
+
+                if (timeleft.TotalHours >= 1)
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_HHMM_Remaining,
+                                        timeleft.Days*24 + timeleft.Hours, timeleft.Minutes);
+                }
+                else if (timeleft.TotalHours < -1)
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_HHMM_LongerThanUsual,
+                                        Math.Abs(timeleft.Days*24 + timeleft.Hours), Math.Abs(timeleft.Minutes));
+                }
+                else if (timeleft.TotalHours < 0)
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_MM_LongerThanUsual,
+                                        Math.Abs(timeleft.Minutes));
+                }
+                else
+                {
+                    res = string.Format(JenkinsTrayResources.BuildDetails_EstimatedDuration_MM_Remaining,
+                                        timeleft.Minutes);
+                }
+                return res;
+            }
+        }
+
+        private delegate void UpdateIconDelegate(Icon icon);
     }
 }

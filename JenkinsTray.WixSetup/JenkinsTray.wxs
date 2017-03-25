@@ -28,15 +28,12 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="$(var.ProductName)" FileSource="$(var.SolutionDir)..\JenkinsTray\bin\x86\$(var.Configuration)">
-          <Component Id="cmp788826F037B232B8D1CA662C7A724415" Guid="{F488277E-40A7-476A-B965-BEEB006497F9}">
-            <File Id="fil5688DA34328E8A1E0A4F6A1D804C37DE" KeyPath="yes" Name="antlr.runtime.dll" />
-          </Component>
+        <Directory Id="INSTALLLOCATION" Name="$(var.ProductName)" FileSource="$(var.SolutionDir)JenkinsTray\bin\x86\$(var.Configuration)">
           <Component Id="cmp9C7F9E356EE86CE45ED3BA0B5BEAD581" Guid="{C484E181-B75C-4C50-AB24-83060D94D229}">
             <File Id="fil7D65322AEFD472BABBD4824D11274DAE" KeyPath="yes" Name="Common.Logging.dll" />
           </Component>
           <Component Id="cmpB5CD10B4F08899371641B0C0DE534EE3" Guid="{29FC831C-0176-485B-87E6-0614EF8B031A}">
-            <File Id="fil5261152A55EB0609456EDB88C3778AE2" KeyPath="yes" Name="Common.Logging.Log4Net.dll" />
+            <File Id="fil5261152A55EB0609456EDB88C3778AE2" KeyPath="yes" Name="Common.Logging.Log4Net1215.dll" />
           </Component>
           <Component Id="cmp25BBC114FFDE925625CB8C6FA2D9B223" Guid="{64D514E0-556F-44E4-8F5F-F4C0BB8EECF3}">
             <File Id="fil7E1D0B5669659770E8FEFD9737C6D383" KeyPath="yes" Name="DevExpress.Data.v10.1.dll" />
@@ -65,9 +62,6 @@
           <Component Id="cmp5BF8F81273881D3E0601F47EF72D2E46" Guid="{9DF189DC-B492-4FAF-9E55-2FBE452C9355}">
             <File Id="fil5E49494DA4D5D964055F845312578640" KeyPath="yes" Name="JenkinsTray.exe.config" />
           </Component>
-          <Component Id="cmp7A04BD94527EA1928F335EE381F60B45" Guid="{4EB5E3D4-5BE0-404D-811F-478C91AF8533}">
-            <File Id="filEAB10C719D803D8BE8F031DE48EA5654" KeyPath="yes" Name="Iesi.Collections.dll" />
-          </Component>
           <Component Id="cmp75C51DF10C0B5BDF2822D9EEEF27813C" Guid="{386112E7-281C-4150-A1C7-46E67036DFED}">
             <File Id="fil4418F00EA37EF62D28148E7E7B42BC40" KeyPath="yes" Name="log4net.dll" />
           </Component>
@@ -75,7 +69,7 @@
             <File Id="fil562DC4F18EDB1DC79D012122BC96F3D9" KeyPath="yes" Name="LoggingConfig.xml" />
           </Component>
           <Component Id="cmp82D2FB5D3FF74D23A18DD610758156C4" Guid="{1EE3ECAB-2858-4CC7-8B6C-75E8F5F52E6D}">
-            <File Id="fil302487DACA7C4A22B4D8B96816BD690E" KeyPath="yes" Name="Newtonsoft.Json.Net35.dll" />
+            <File Id="fil302487DACA7C4A22B4D8B96816BD690E" KeyPath="yes" Name="Newtonsoft.Json.dll" />
           </Component>
           <Component Id="cmp5E383EFA84B425FA3738A2378659FA83" Guid="{32E0E795-45CD-483A-8101-2A7BF775FAE0}">
             <File Id="fil48C49AC6BD43A7BF6F4C892431FD1ECD" KeyPath="yes" Name="SmartThreadPool.dll" />
@@ -122,7 +116,6 @@
     <Binary Id="InstallUtil" SourceFile="src\InstallUtilLib.dll" />
 
     <Feature Id="Application" Title="$(var.ProductName)" Level="1">
-      <ComponentRef Id="cmp788826F037B232B8D1CA662C7A724415"/>
       <ComponentRef Id="cmp9C7F9E356EE86CE45ED3BA0B5BEAD581"/>
       <ComponentRef Id="cmpB5CD10B4F08899371641B0C0DE534EE3"/>
       <ComponentRef Id="cmp25BBC114FFDE925625CB8C6FA2D9B223"/>
@@ -134,7 +127,6 @@
       <ComponentRef Id="cmpDECF02664B2BD6FE145377F56C75278A"/>
       <ComponentRef Id="cmpFC72D988F9982C9734B0DAEBC993CEE9"/>
       <ComponentRef Id="cmp5BF8F81273881D3E0601F47EF72D2E46"/>
-      <ComponentRef Id="cmp7A04BD94527EA1928F335EE381F60B45"/>
       <ComponentRef Id="cmp75C51DF10C0B5BDF2822D9EEEF27813C"/>
       <ComponentRef Id="cmp92A572B519DE896800538C7795082921"/>
       <ComponentRef Id="cmp82D2FB5D3FF74D23A18DD610758156C4"/>

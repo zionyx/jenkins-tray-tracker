@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Iesi.Collections.Generic;
-using Newtonsoft.Json;
-using JenkinsTray.Utils.Serialization;
+﻿using Newtonsoft.Json;
+using Spring.Collections.Generic;
 
 namespace JenkinsTray.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class Configuration
     {
+        public Configuration()
+        {
+            Servers = new HashedSet<Server>();
+            NotificationSettings = new NotificationSettings();
+            GeneralSettings = new GeneralSettings();
+        }
+
         [JsonProperty("servers")]
         public ISet<Server> Servers { get; set; }
 
@@ -19,12 +21,5 @@ namespace JenkinsTray.Entities
 
         [JsonProperty("generalSettings")]
         public GeneralSettings GeneralSettings { get; set; }
-
-        public Configuration()
-        {
-            Servers = new HashedSet<Server>();
-            NotificationSettings = new NotificationSettings();
-            GeneralSettings = new GeneralSettings();
-        }
     }
 }

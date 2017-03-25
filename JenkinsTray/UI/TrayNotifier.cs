@@ -1,26 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using JenkinsTray.BusinessComponents;
 using Common.Logging;
-using System.Reflection;
-using JenkinsTray.Entities;
-using JenkinsTray.Utils.Logging;
-using Iesi.Collections.Generic;
-using DevExpress.XtraEditors;
-using JenkinsTray.Utils;
-using Spring.Context.Support;
 using DevExpress.Utils;
+using DevExpress.XtraEditors;
+using JenkinsTray.BusinessComponents;
+using JenkinsTray.Entities;
+using JenkinsTray.Utils;
+using JenkinsTray.Utils.Logging;
+using Spring.Context.Support;
+using Spring.Collections.Generic;
 
 namespace JenkinsTray.UI
 {
     public partial class TrayNotifier : Component
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public static readonly int MAX_TOOLTIP_LENGTH = 127;
         public static readonly int BALLOON_TOOLTIP_TIMEOUT = 3000;
 
@@ -28,15 +27,20 @@ namespace JenkinsTray.UI
         {
             get
             {
-                TrayNotifier instance = (TrayNotifier)ContextRegistry.GetContext().GetObject("TrayNotifier");
+                var instance = (TrayNotifier) ContextRegistry.GetContext().GetObject("TrayNotifier");
                 return instance;
             }
         }
 
-        BuildStatus lastBuildStatus;
-        IDictionary<Project, AllBuildDetails> lastProjectsBuildDetails = new Dictionary<Project, AllBuildDetails>();
-        IDictionary<Project, BuildStatus> acknowledgedStatusByProject = new Dictionary<Project, BuildStatus>();
-        IDictionary<string, Icon> iconsByKey;
+        private BuildStatus lastBuildStatus;
+
+        private readonly IDictionary<Project, AllBuildDetails> lastProjectsBuildDetails =
+            new Dictionary<Project, AllBuildDetails>();
+
+        private readonly IDictionary<Project, BuildStatus> acknowledgedStatusByProject =
+            new Dictionary<Project, BuildStatus>();
+
+        private IDictionary<string, Icon> iconsByKey;
 
         public ConfigurationService ConfigurationService { get; set; }
         public JenkinsService JenkinsService { get; set; }
@@ -55,13 +59,13 @@ namespace JenkinsTray.UI
             UpdateService.ProjectsUpdated += updateService_ProjectsUpdated;
 
             Disposed += delegate
-            {
-                ConfigurationService.ConfigurationUpdated -= configurationService_ConfigurationUpdated;
-                UpdateService.ProjectsUpdated -= updateService_ProjectsUpdated;
-            };
+                        {
+                            ConfigurationService.ConfigurationUpdated -= configurationService_ConfigurationUpdated;
+                            UpdateService.ProjectsUpdated -= updateService_ProjectsUpdated;
+                        };
         }
 
-        void configurationService_ConfigurationUpdated()
+        private void configurationService_ConfigurationUpdated()
         {
             UpdateNotifier();
         }
@@ -94,24 +98,24 @@ namespace JenkinsTray.UI
             try
             {
                 // order the projects by build status
-                var projectsByStatus = new Dictionary<BuildStatusEnum, SortedSet<Project>>();
-                foreach (KeyValuePair<Project, AllBuildDetails> pair in lastProjectsBuildDetails)
+                var projectsByStatus = new Dictionary<BuildStatusEnum, Spring.Collections.Generic.SortedSet<Project>>();
+                foreach (var pair in lastProjectsBuildDetails)
                 {
-                    BuildStatusEnum status = BuildStatusEnum.Unknown;
+                    var status = BuildStatusEnum.Unknown;
                     if (pair.Value != null)
                         status = BuildStatusUtils.DegradeStatus(pair.Value.Status).Value;
-                    SortedSet<Project> projects = new SortedSet<Project>();
+                    var projects = new Spring.Collections.Generic.SortedSet<Project>();
                     if (projectsByStatus.TryGetValue(status, out projects) == false)
                     {
-                        projects = new SortedSet<Project>();
+                        projects = new Spring.Collections.Generic.SortedSet<Project>();
                         projectsByStatus.Add(status, projects);
                     }
                     projects.Add(pair.Key);
                 }
 
-                StringBuilder text = new StringBuilder();
+                var text = new StringBuilder();
                 string prefix = null;
-                foreach (KeyValuePair<BuildStatusEnum, SortedSet<Project>> pair in projectsByStatus)
+                foreach (var pair in projectsByStatus)
                 {
                     // don't display successful projects unless this is the only status
                     if (pair.Key == BuildStatusEnum.Successful || projectsByStatus.Count == 1)
@@ -119,28 +123,28 @@ namespace JenkinsTray.UI
 
                     if (prefix != null)
                         text.Append(prefix);
-                    string statusText = JenkinsTrayResources.ResourceManager
-                        .GetString("BuildStatus_" + pair.Key.ToString());
+                    var statusText = JenkinsTrayResources.ResourceManager
+                                                         .GetString("BuildStatus_" + pair.Key);
                     text.Append(statusText);
-                    foreach (Project project in pair.Value)
+                    foreach (var project in pair.Value)
                     {
                         text.Append("\n  - ").Append(project.Name);
 
-                        BuildDetails lastFailedBuild = project.LastFailedBuild;
+                        var lastFailedBuild = project.LastFailedBuild;
                         if (lastFailedBuild != null && lastFailedBuild.Users != null && lastFailedBuild.Users.Count > 0)
                         {
-                            string users = StringUtils.Join(lastFailedBuild.Users, ", ");
+                            var users = StringUtils.Join(lastFailedBuild.Users, ", ");
                             text.Append(" (").Append(users).Append(")");
                         }
                     }
                     prefix = "\n";
                 }
 
-                string textToDisplay = text.ToString();
+                var textToDisplay = text.ToString();
                 if (string.IsNullOrEmpty(textToDisplay))
                     textToDisplay = JenkinsTrayResources.DisplayBuildStatus_NoProjects;
                 notifyIcon.ShowBalloonTip(BALLOON_TOOLTIP_TIMEOUT, JenkinsTrayResources.DisplayBuildStatus_Caption,
-                    textToDisplay, ToolTipIcon.Info);
+                                          textToDisplay, ToolTipIcon.Info);
             }
             catch (Exception ex)
             {
@@ -205,21 +209,21 @@ namespace JenkinsTray.UI
         private void DoUpdateNotifier()
         {
             BuildStatusEnum? worstBuildStatus = null;
-            bool buildInProgress = false;
-            bool buildIsStuck = false;
+            var buildInProgress = false;
+            var buildIsStuck = false;
             var errorProjects = new HashedSet<Project>();
             var regressingProjects = new HashedSet<Project>();
             var progressingAndErrorProjects = new HashedSet<Project>();
             var interestingProjects = new HashedSet<Project>();
-            int totalProjectCount = 0;
+            var totalProjectCount = 0;
 
-            foreach (Server server in ConfigurationService.Servers)
+            foreach (var server in ConfigurationService.Servers)
             {
-                foreach (Project project in server.Projects)
+                foreach (var project in server.Projects)
                 {
                     totalProjectCount++;
 
-                    BuildStatus status = GetProjectStatus(project);
+                    var status = GetProjectStatus(project);
                     if (worstBuildStatus == null || status.Value > worstBuildStatus)
                         worstBuildStatus = status.Value;
                     if (status.Value >= BuildStatusEnum.Failed)
@@ -255,7 +259,7 @@ namespace JenkinsTray.UI
             Console.WriteLine("tray:"+lastBuildStatus);
 #endif
 
-            BuildStatus buildStatus = new BuildStatus(worstBuildStatus.Value, buildInProgress, buildIsStuck);
+            var buildStatus = new BuildStatus(worstBuildStatus.Value, buildInProgress, buildIsStuck);
 
             UpdateIcon(buildStatus);
             UpdateTrayTooltip(progressingAndErrorProjects, totalProjectCount);
@@ -270,13 +274,13 @@ namespace JenkinsTray.UI
 
         private BuildStatus GetProjectStatus(Project project)
         {
-            BuildStatus status = project.Status;
-            BuildStatus acknowledgedStatus = GetAcknowledgedStatus(project);
+            var status = project.Status;
+            var acknowledgedStatus = GetAcknowledgedStatus(project);
             if (project.IsAcknowledged || (acknowledgedStatus != null))
             {
                 if (project.IsAcknowledged || (status.Value == acknowledgedStatus.Value))
                     return new BuildStatus(BuildStatusEnum.Successful, false, false);
-                else if (status.Value != BuildStatusEnum.Unknown && BuildStatusUtils.IsWorse(acknowledgedStatus, status))
+                if (status.Value != BuildStatusEnum.Unknown && BuildStatusUtils.IsWorse(acknowledgedStatus, status))
                     ClearAcknowledgedStatus(project);
             }
             return status;
@@ -288,7 +292,7 @@ namespace JenkinsTray.UI
             if (lastProjectsBuildDetails.TryGetValue(project, out lastBuildDetails) == false
                 || lastBuildDetails == null)
                 return false;
-            AllBuildDetails newBuildDetails = project.AllBuildDetails;
+            var newBuildDetails = project.AllBuildDetails;
             if (newBuildDetails == null)
                 return false;
 
@@ -296,13 +300,13 @@ namespace JenkinsTray.UI
             if (newBuildDetails.Status.Value <= BuildStatusEnum.Successful)
                 return false;
 
-            bool res = BuildStatusUtils.IsWorse(newBuildDetails.Status, lastBuildDetails.Status);
+            var res = BuildStatusUtils.IsWorse(newBuildDetails.Status, lastBuildDetails.Status);
             return res;
         }
 
         private void UpdateTrayTooltip(ICollection<Project> progressingAndErrorProjects, int totalProjectCount)
         {
-            StringBuilder tooltipText = new StringBuilder();
+            var tooltipText = new StringBuilder();
             string prefix = null;
 
             if (totalProjectCount == 0)
@@ -311,7 +315,7 @@ namespace JenkinsTray.UI
             }
             else if (progressingAndErrorProjects != null && progressingAndErrorProjects.Count > 0)
             {
-                foreach (Project project in progressingAndErrorProjects)
+                foreach (var project in progressingAndErrorProjects)
                 {
                     if (project.IsAcknowledged)
                         continue;
@@ -322,11 +326,12 @@ namespace JenkinsTray.UI
                     }
                     if (prefix != null)
                         tooltipText.Append(prefix);
-                    BuildStatus status = GetProjectStatus(project);
-                    BuildDetails buildDetails = project.LastBuild;
-                    if ((status.IsInProgress) && (status.Value == BuildStatusEnum.Failed))
+                    var status = GetProjectStatus(project);
+                    var buildDetails = project.LastBuild;
+                    if (status.IsInProgress && (status.Value == BuildStatusEnum.Failed))
                     {
-                        tooltipText.Append(string.Format(JenkinsTrayResources.Tooltip_Failed_And_InProgress, project.Name));
+                        tooltipText.Append(string.Format(JenkinsTrayResources.Tooltip_Failed_And_InProgress,
+                                                         project.Name));
                     }
                     else if (status.IsInProgress)
                     {
@@ -334,7 +339,8 @@ namespace JenkinsTray.UI
                     }
                     else
                     {
-                        tooltipText.Append(string.Format(JenkinsTrayResources.Tooltip_BuildStatus, project.Name, status.Value.ToString()));
+                        tooltipText.Append(string.Format(JenkinsTrayResources.Tooltip_BuildStatus, project.Name,
+                                                         status.Value));
                     }
                     prefix = "\n";
                     if (tooltipText.ToString().Length > MAX_TOOLTIP_LENGTH)
@@ -351,16 +357,16 @@ namespace JenkinsTray.UI
 
         public void ShowBallowTip(ICollection<Project> interestingProjects)
         {
-            foreach (Project project in interestingProjects)
+            foreach (var project in interestingProjects)
             {
                 try
                 {
-                    CaptionAndMessage info = project.Activity.ActivityDetails;
+                    var info = project.Activity.ActivityDetails;
 
                     //  Need a queue so no events are skipped
                     notifyIcon.ShowBalloonTip(BALLOON_TOOLTIP_TIMEOUT, info.Caption, info.Message, info.Icon);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     LoggingHelper.LogError(logger, ex);
                 }
@@ -372,58 +378,58 @@ namespace JenkinsTray.UI
             if (lastBuildStatus != null && lastBuildStatus.Value < BuildStatusEnum.Failed
                 && errorProjects != null && errorProjects.Count > 0)
             {
-                StringBuilder errorProjectsText = new StringBuilder();
+                var errorProjectsText = new StringBuilder();
                 string prefix = null;
-                foreach (Project project in errorProjects)
+                foreach (var project in errorProjects)
                 {
                     if (prefix != null)
                         errorProjectsText.Append(prefix);
-                    BuildDetails buildDetails = project.LastFailedBuild;
+                    var buildDetails = project.LastFailedBuild;
                     if (buildDetails == null)
                         logger.Warn("No details for the last failed build of project in error: " + project.Url);
-                    ISet<string> users = buildDetails != null ? buildDetails.Users : null;
+                    var users = buildDetails != null ? buildDetails.Users : null;
                     FormatProjectDetails(project.Name, users, errorProjectsText);
                     prefix = "\n";
                 }
 
                 notifyIcon.ShowBalloonTip(BALLOON_TOOLTIP_TIMEOUT, JenkinsTrayResources.BuildFailed_Caption,
-                    errorProjectsText.ToString(), ToolTipIcon.Error);
+                                          errorProjectsText.ToString(), ToolTipIcon.Error);
             }
             else if (regressingProjects != null && regressingProjects.Count > 0)
             {
-                StringBuilder regressingProjectsText = new StringBuilder();
+                var regressingProjectsText = new StringBuilder();
                 string prefix = null;
-                foreach (Project project in regressingProjects)
+                foreach (var project in regressingProjects)
                 {
                     if (prefix != null)
                         regressingProjectsText.Append(prefix);
-                    BuildDetails buildDetails = project.AllBuildDetails.LastCompletedBuild;
+                    var buildDetails = project.AllBuildDetails.LastCompletedBuild;
                     if (buildDetails == null)
                         logger.Warn("No details for the last failed build of project in error: " + project.Url);
-                    ISet<string> users = buildDetails != null ? buildDetails.Users : null;
+                    var users = buildDetails != null ? buildDetails.Users : null;
                     FormatProjectDetails(project.Name, users, regressingProjectsText);
                     prefix = "\n";
                 }
 
                 notifyIcon.ShowBalloonTip(10000, JenkinsTrayResources.BuildRegressions_Caption,
-                    regressingProjectsText.ToString(), ToolTipIcon.Warning);
+                                          regressingProjectsText.ToString(), ToolTipIcon.Warning);
             }
         }
 
-        private void FormatProjectDetails(string projectName, ISet<string> users, StringBuilder builder)
+        private void FormatProjectDetails(string projectName, Spring.Collections.Generic.ISet<string> users, StringBuilder builder)
         {
             builder.Append(projectName);
 
             if (users != null && users.Count > 0)
             {
-                string userString = StringUtils.Join(users, ", ");
+                var userString = StringUtils.Join(users, ", ");
                 builder.Append(" (").Append(userString).Append(")");
             }
         }
 
         private void UpdateIcon(BuildStatus buildStatus)
         {
-            Icon icon = iconsByKey[buildStatus.Key];
+            var icon = iconsByKey[buildStatus.Key];
             notifyIcon.Icon = icon;
 
             // update the main window's icon
@@ -446,21 +452,21 @@ namespace JenkinsTray.UI
 
         private void LoadIcon(BuildStatusEnum statusValue, bool isInProgress, bool isStuck)
         {
-            BuildStatus status = new BuildStatus(statusValue, isInProgress, isStuck);
+            var status = new BuildStatus(statusValue, isInProgress, isStuck);
             if (iconsByKey.ContainsKey(status.Key))
                 return;
 
             try
             {
-                string resourceName = string.Format("JenkinsTray.Resources.TrayIcons.{0}.ico", status.Key);
-                Icon icon = ResourceImageHelper.CreateIconFromResources(resourceName, GetType().Assembly);
+                var resourceName = string.Format("JenkinsTray.Resources.TrayIcons.{0}.ico", status.Key);
+                var icon = ResourceImageHelper.CreateIconFromResources(resourceName, GetType().Assembly);
                 iconsByKey.Add(status.Key, icon);
             }
             catch (Exception ex)
             {
                 XtraMessageBox.Show(JenkinsTrayResources.FailedLoadingIcons_Text,
-                    JenkinsTrayResources.FailedLoadingIcons_Caption,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    JenkinsTrayResources.FailedLoadingIcons_Caption,
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LoggingHelper.LogError(logger, ex);
                 throw new Exception("Failed loading icon: " + statusValue, ex);
             }
@@ -519,11 +525,11 @@ namespace JenkinsTray.UI
             {
                 text = text.Remove(MAX_TOOLTIP_LENGTH - 4) + " ...";
             }
-            Type t = typeof(NotifyIcon);
-            BindingFlags hidden = BindingFlags.NonPublic | BindingFlags.Instance;
+            var t = typeof(NotifyIcon);
+            var hidden = BindingFlags.NonPublic | BindingFlags.Instance;
             t.GetField("text", hidden).SetValue(notifyIcon, text);
-            if ((bool)t.GetField("added", hidden).GetValue(notifyIcon))
-                t.GetMethod("UpdateIcon", hidden).Invoke(notifyIcon, new object[] { true });
+            if ((bool) t.GetField("added", hidden).GetValue(notifyIcon))
+                t.GetMethod("UpdateIcon", hidden).Invoke(notifyIcon, new object[] {true});
         }
     }
 }

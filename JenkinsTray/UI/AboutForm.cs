@@ -1,42 +1,38 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.Diagnostics;
 using System.Reflection;
-using Spring.Context.Support;
-using JenkinsTray.Utils;
+using System.Windows.Forms;
 using Common.Logging;
+using DevExpress.XtraEditors;
+using JenkinsTray.Utils;
+using Spring.Context.Support;
 
 namespace JenkinsTray.UI
 {
-    public partial class AboutForm : DevExpress.XtraEditors.XtraForm
+    public partial class AboutForm : XtraForm
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        public static AboutForm Instance
-        {
-            get
-            {
-                AboutForm instance = (AboutForm)ContextRegistry.GetContext().GetObject("AboutForm");
-                return instance;
-            }
-        }
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public AboutForm()
         {
             InitializeComponent();
 
-            versionLabelControl.Text = string.Format(JenkinsTrayResources.Version_Format, 
-                FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion);
+            versionLabelControl.Text = string.Format(JenkinsTrayResources.Version_Format,
+                                                     FileVersionInfo.GetVersionInfo(
+                                                         Assembly.GetExecutingAssembly().Location).FileVersion);
+        }
+
+        public static AboutForm Instance
+        {
+            get
+            {
+                var instance = (AboutForm) ContextRegistry.GetContext().GetObject("AboutForm");
+                return instance;
+            }
         }
 
         private void linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string url = ((LinkLabel)sender).Text;
+            var url = ((LinkLabel) sender).Text;
             UIUtils.OpenWebPage(url, logger);
         }
 

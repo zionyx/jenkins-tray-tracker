@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Iesi.Collections.Generic;
-
-namespace JenkinsTray.Entities
+﻿namespace JenkinsTray.Entities
 {
     public class ClaimDetails
     {

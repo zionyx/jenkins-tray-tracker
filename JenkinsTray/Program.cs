@@ -1,37 +1,31 @@
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
-using JenkinsTray.BusinessComponents;
-using DevExpress.Skins;
+using Common.Logging;
 using DevExpress.LookAndFeel;
+using DevExpress.Skins;
 using DevExpress.UserSkins;
 using JenkinsTray.UI;
-using JenkinsTray.Utils.Logging;
-using System.Reflection;
-using System.Diagnostics;
-using Common.Logging;
 using JenkinsTray.Utils;
-using System.Threading;
-using System.Drawing;
-using System.IO;
-using DevExpress.XtraEditors;
+using JenkinsTray.Utils.Logging;
 using Spring.Context.Support;
 
 namespace JenkinsTray
 {
-    static class Program
+    internal static class Program
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             try
             {
-                Application.ThreadException += new ThreadExceptionEventHandler(ThreadExceptionHandler.Application_ThreadException);
+                Application.ThreadException += ThreadExceptionHandler.Application_ThreadException;
 
                 // skinning         
                 SkinManager.EnableFormSkins();
@@ -40,7 +34,7 @@ namespace JenkinsTray
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.ApplicationExit += new EventHandler(Application_Exit);
+                Application.ApplicationExit += Application_Exit;
                 Application_Prepare();
 
                 // Spring
@@ -48,7 +42,7 @@ namespace JenkinsTray
                 MainForm.Instance.Show();
                 TrayNotifier.Instance.UpdateNotifierStartup();
 
-                ApplicationContext appContext = new ApplicationContext();
+                var appContext = new ApplicationContext();
                 Application.Run(appContext);
             }
             catch (Exception ex)
@@ -62,11 +56,11 @@ namespace JenkinsTray
         {
             logger.Info("Log4net ready.");
             logger.Info(Assembly.GetExecutingAssembly().GetName().Name
-                + " v" + FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion);
+                        + " v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion);
             logger.Info(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location));
         }
 
-        static void Application_Exit(object sender, EventArgs e)
+        private static void Application_Exit(object sender, EventArgs e)
         {
             try
             {
@@ -79,7 +73,8 @@ namespace JenkinsTray
             }
 
             logger.Info(Assembly.GetExecutingAssembly().GetName().Name
-                + " v" + FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion + " Exit");
+                        + " v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion +
+                        " Exit");
         }
     }
 }

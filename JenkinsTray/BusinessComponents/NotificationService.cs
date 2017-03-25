@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using JenkinsTray.Entities;
 
@@ -6,7 +5,7 @@ namespace JenkinsTray.BusinessComponents
 {
     public class NotificationService : Component
     {
-        private AllServersStatus allServersStatus = new AllServersStatus();
+        private readonly AllServersStatus allServersStatus = new AllServersStatus();
 
         public ConfigurationService ConfigurationService { get; set; }
         public ProjectsUpdateService UpdateService { private get; set; }
@@ -16,10 +15,10 @@ namespace JenkinsTray.BusinessComponents
             ConfigurationService.ConfigurationUpdated += Execute;
             UpdateService.ProjectsUpdated += Execute;
             Disposed += delegate
-            {
-                ConfigurationService.ConfigurationUpdated -= Execute;
-                UpdateService.ProjectsUpdated -= Execute;
-            };
+                        {
+                            ConfigurationService.ConfigurationUpdated -= Execute;
+                            UpdateService.ProjectsUpdated -= Execute;
+                        };
 
             //Execute();
         }
@@ -47,7 +46,9 @@ namespace JenkinsTray.BusinessComponents
         private bool TreatAsFailure(BuildStatusEnum status)
         {
             return status == BuildStatusEnum.Failed
-                || (status == BuildStatusEnum.Unstable && ConfigurationService.NotificationSettings.TreatUnstableAsFailed);
+                   ||
+                   (status == BuildStatusEnum.Unstable &&
+                    ConfigurationService.NotificationSettings.TreatUnstableAsFailed);
         }
     }
 }

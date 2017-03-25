@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
+using System.Windows.Forms;
 using Common.Logging;
 using DevExpress.XtraEditors;
-using System.Windows.Forms;
 
 namespace JenkinsTray.Utils
 {
@@ -21,9 +18,9 @@ namespace JenkinsTray.Utils
             {
                 logger.Warn("Failed opening page: " + url, ex);
 
-                string errorMessage = String.Format(JenkinsTrayResources.ErrorBoxMessage, ex.Message);
+                var errorMessage = string.Format(JenkinsTrayResources.ErrorBoxMessage, ex.Message);
                 XtraMessageBox.Show(errorMessage, JenkinsTrayResources.ErrorBoxCaption,
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }

@@ -1,12 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Reflection;
-
-using Common.Logging;
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Common.Logging;
 
 namespace JenkinsTray.Utils.Collections
 {
@@ -16,17 +14,24 @@ namespace JenkinsTray.Utils.Collections
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly Regex REGEX_BOOLEAN_TRUE = new Regex("^( *)(true|1|yes)( *)$", RegexOptions.IgnoreCase);
+        private readonly CultureInfo culture = new CultureInfo("en-US");
 
-        string id;
-        IDictionary<string, string> properties;
-        CultureInfo culture = new CultureInfo("en-US");
-        bool readOnly;
+        private readonly string id;
+        private readonly IDictionary<string, string> properties;
 
-        public bool ReadOnly
+        public PropertiesContainer(string id, bool readOnly)
         {
-            get { return readOnly; }
-            set { readOnly = value; }
+            this.id = id;
+            ReadOnly = readOnly;
+            properties = new Dictionary<string, string>();
         }
+
+        public PropertiesContainer(string id)
+            : this(id, false)
+        {
+        }
+
+        public bool ReadOnly { get; set; }
 
         // returns the property or null if not found
         public string this[string key]
@@ -34,22 +39,10 @@ namespace JenkinsTray.Utils.Collections
             get { return GetStringValue(key); }
             set
             {
-                if (readOnly)
+                if (ReadOnly)
                     throw new Exception("Cannot write to a read-only container");
                 properties[key] = value;
             }
-        }
-
-        public PropertiesContainer(string id, bool readOnly)
-        {
-            this.id = id;
-            this.readOnly = readOnly;
-            properties = new Dictionary<string, string>();
-        }
-
-        public PropertiesContainer(string id)
-            : this(id, false)
-        {
         }
 
         public string GetStringValue(string key)
@@ -61,7 +54,7 @@ namespace JenkinsTray.Utils.Collections
 
         public string GetStringValue(string key, string defaultValue)
         {
-            string res = GetStringValue(key);
+            var res = GetStringValue(key);
             if (res != null)
                 return res;
             return defaultValue;
@@ -69,20 +62,20 @@ namespace JenkinsTray.Utils.Collections
 
         public string GetRequiredStringValue(string key)
         {
-            string value = GetStringValue(key);
+            var value = GetStringValue(key);
             if (value != null)
                 return value;
             throw new Exception("Required property '" + key + "' not found in container '" + id + "'");
         }
 
-        public Int32? GetIntValue(string key)
+        public int? GetIntValue(string key)
         {
-            string strValue = GetStringValue(key);
+            var strValue = GetStringValue(key);
             if (strValue == null)
                 return null;
 
-            Int32 intValue;
-            if (Int32.TryParse(strValue, out intValue) == false)
+            int intValue;
+            if (int.TryParse(strValue, out intValue) == false)
             {
                 logger.Error("Failed reading Int32 property '" + key + "' in file '" + id + "'");
                 throw new Exception("Failed reading Int32 property '" + key + "' in file '" + id + "'");
@@ -90,17 +83,17 @@ namespace JenkinsTray.Utils.Collections
             return intValue;
         }
 
-        public Int32 GetIntValue(string key, Int32 defaultValue)
+        public int GetIntValue(string key, int defaultValue)
         {
-            Int32? value = GetIntValue(key);
+            var value = GetIntValue(key);
             if (value != null)
                 return value.Value;
             return defaultValue;
         }
 
-        public Int32 GetRequiredIntValue(string key)
+        public int GetRequiredIntValue(string key)
         {
-            Int32? value = GetIntValue(key);
+            var value = GetIntValue(key);
             if (value != null)
                 return value.Value;
             throw new Exception("Required property '" + key + "' not found in file '" + id + "'");
@@ -113,7 +106,7 @@ namespace JenkinsTray.Utils.Collections
 
         public float? GetFloatValue(string key)
         {
-            string strValue = GetStringValue(key);
+            var strValue = GetStringValue(key);
             if (strValue == null)
                 return null;
 
@@ -128,7 +121,7 @@ namespace JenkinsTray.Utils.Collections
 
         public float? GetFloatValue(string key, float defaultValue)
         {
-            float? value = GetFloatValue(key);
+            var value = GetFloatValue(key);
             if (value != null)
                 return value.Value;
             return defaultValue;
@@ -136,7 +129,7 @@ namespace JenkinsTray.Utils.Collections
 
         public float GetRequiredFloatValue(string key)
         {
-            float? value = GetFloatValue(key);
+            var value = GetFloatValue(key);
             if (value != null)
                 return value.Value;
             throw new Exception("Required property '" + key + "' not found in file '" + id + "'");
@@ -144,7 +137,7 @@ namespace JenkinsTray.Utils.Collections
 
         public bool? GetBoolValue(string key)
         {
-            string strValue = GetStringValue(key);
+            var strValue = GetStringValue(key);
             if (strValue == null)
                 return null;
 
@@ -155,7 +148,7 @@ namespace JenkinsTray.Utils.Collections
 
         public bool GetBoolValue(string key, bool defaultValue)
         {
-            bool? value = GetBoolValue(key);
+            var value = GetBoolValue(key);
             if (value != null)
                 return value.Value;
             return defaultValue;
@@ -173,7 +166,7 @@ namespace JenkinsTray.Utils.Collections
 
         public int GetGroupCount(string group)
         {
-            int? count = GetIntValue(group + ".count");
+            var count = GetIntValue(group + ".count");
             if (count.HasValue)
                 return count.Value;
             return 0;
@@ -181,44 +174,44 @@ namespace JenkinsTray.Utils.Collections
 
         public string GetGroupStringValue(string group, int groupId, string key)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetStringValue(groupKey);
         }
 
         public string GetGroupStringValue(string group, int groupId, string key, string defaultValue)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetStringValue(groupKey, defaultValue);
         }
 
         public string GetGroupRequiredStringValue(string group, int groupId, string key)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetRequiredStringValue(groupKey);
         }
 
-        public Int32? GetGroupIntValue(string group, int groupId, string key)
+        public int? GetGroupIntValue(string group, int groupId, string key)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetIntValue(groupKey);
         }
 
-        public Int32? GetGroupIntValue(string group, int groupId, string key, Int32 defaultValue)
+        public int? GetGroupIntValue(string group, int groupId, string key, int defaultValue)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetIntValue(groupKey, defaultValue);
         }
 
         public void SetGroupIntValue(string group, int groupId, string key, int value)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
 
             this[groupKey] = value.ToString();
         }
 
         public bool? GetGroupBoolValue(string group, int groupId, string key)
         {
-            string strValue = GetGroupStringValue(group, groupId, key);
+            var strValue = GetGroupStringValue(group, groupId, key);
 
             if (strValue == null)
                 return null;
@@ -228,7 +221,7 @@ namespace JenkinsTray.Utils.Collections
 
         public bool GetGroupBoolValue(string group, int groupId, string key, bool defaultValue)
         {
-            bool? value = GetGroupBoolValue(group, groupId, key);
+            var value = GetGroupBoolValue(group, groupId, key);
 
             if (value != null)
                 return value.Value;
@@ -238,32 +231,32 @@ namespace JenkinsTray.Utils.Collections
 
         public void SetGroupBoolValue(string group, int groupId, string key, bool value)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
 
             this[groupKey] = value ? "true" : "false";
         }
 
-        public Int32 GetGroupRequiredIntValue(string group, int groupId, string key)
+        public int GetGroupRequiredIntValue(string group, int groupId, string key)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetRequiredIntValue(groupKey);
         }
 
         public float? GetGroupFloatValue(string group, int groupId, string key)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetFloatValue(groupKey);
         }
 
         public float? GetGroupFloatValue(string group, int groupId, string key, float defaultValue)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetFloatValue(groupKey, defaultValue);
         }
 
         public float GetGroupRequiredFloatValue(string group, int groupId, string key)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             return GetRequiredFloatValue(groupKey);
         }
 
@@ -276,13 +269,8 @@ namespace JenkinsTray.Utils.Collections
 
         public void SetGroupStringValue(string group, int groupId, string key, string value)
         {
-            string groupKey = GetGroupKey(group, groupId, key);
+            var groupKey = GetGroupKey(group, groupId, key);
             this[groupKey] = value;
-        }
-
-        private string GetGroupKey(string group, int groupId, string key)
-        {
-            return group + "[" + groupId + "]." + key;
         }
 
         #region IEnumerable<KeyValuePair<string,string>> Members
@@ -296,7 +284,7 @@ namespace JenkinsTray.Utils.Collections
 
         #region IEnumerable Members
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return properties.GetEnumerator();
         }
@@ -305,15 +293,20 @@ namespace JenkinsTray.Utils.Collections
 
         public void CopyPropertiesFrom(IPropertiesContainer properties)
         {
-            foreach (KeyValuePair<string, string> pair in properties)
+            foreach (var pair in properties)
                 this[pair.Key] = pair.Value;
         }
 
         public void Clear()
         {
-            if (readOnly)
+            if (ReadOnly)
                 throw new Exception("Cannot write to a read-only container");
             properties.Clear();
+        }
+
+        private string GetGroupKey(string group, int groupId, string key)
+        {
+            return group + "[" + groupId + "]." + key;
         }
     }
 }

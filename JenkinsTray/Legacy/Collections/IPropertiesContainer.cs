@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Reflection;
 
 namespace JenkinsTray.Utils.Collections
 {
@@ -17,9 +14,9 @@ namespace JenkinsTray.Utils.Collections
         string GetStringValue(string key);
         string GetStringValue(string key, string defaultValue);
         string GetRequiredStringValue(string key);
-        Int32? GetIntValue(string key);
-        Int32 GetIntValue(string key, Int32 defaultValue);
-        Int32 GetRequiredIntValue(string key);
+        int? GetIntValue(string key);
+        int GetIntValue(string key, int defaultValue);
+        int GetRequiredIntValue(string key);
         void SetIntValue(string key, int value);
         float? GetFloatValue(string key);
         float? GetFloatValue(string key, float defaultValue);
@@ -33,9 +30,9 @@ namespace JenkinsTray.Utils.Collections
         string GetGroupStringValue(string group, int groupId, string key);
         string GetGroupStringValue(string group, int groupId, string key, string defaultValue);
         string GetGroupRequiredStringValue(string group, int groupId, string key);
-        Int32? GetGroupIntValue(string group, int groupId, string key);
-        Int32? GetGroupIntValue(string group, int groupId, string key, Int32 defaultValue);
-        Int32 GetGroupRequiredIntValue(string group, int groupId, string key);
+        int? GetGroupIntValue(string group, int groupId, string key);
+        int? GetGroupIntValue(string group, int groupId, string key, int defaultValue);
+        int GetGroupRequiredIntValue(string group, int groupId, string key);
         float? GetGroupFloatValue(string group, int groupId, string key);
         float? GetGroupFloatValue(string group, int groupId, string key, float defaultValue);
         float GetGroupRequiredFloatValue(string group, int groupId, string key);

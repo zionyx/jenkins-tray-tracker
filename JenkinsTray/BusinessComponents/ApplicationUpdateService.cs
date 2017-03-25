@@ -1,20 +1,19 @@
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
-using Common.Logging;
+using System.Net;
 using System.Reflection;
 using System.Threading;
-using JenkinsTray.Utils.Logging;
-using System.ComponentModel;
-using System.Net;
+using Common.Logging;
 using JenkinsTray.Utils.IO;
-using JenkinsTray.Utils.Collections;
+using JenkinsTray.Utils.Logging;
 
 namespace JenkinsTray.BusinessComponents
 {
     public class ApplicationUpdateService
     {
+        public delegate void NewVersionAvailableHandler(Version version, string installerUrl);
+
         public enum UpdateSource
         {
             User,
@@ -22,33 +21,32 @@ namespace JenkinsTray.BusinessComponents
             Program
         }
 
-        public delegate void NewVersionAvailableHandler(Version version, string installerUrl);
-        public event NewVersionAvailableHandler NewVersionAvailable;
-
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         // every hour
-        static readonly int DEFAULT_UPDATE_PERIOD = 60 * 60 * 1000;
+        private static readonly int DEFAULT_UPDATE_PERIOD = 60*60*1000;
         // 5 seconds delay for the 1st check on application start up
-        static readonly int DEFAULT_UPDATE_DELAY = 5 * 1000;
+        private static readonly int DEFAULT_UPDATE_DELAY = 5*1000;
 
-        static readonly String URL = "https://raw.githubusercontent.com/zionyx/jenkins-tray/master/scripts/version.properties";
+        private static readonly string URL =
+            "https://raw.githubusercontent.com/zionyx/jenkins-tray/master/scripts/version.properties";
 
-        static readonly String PROPERTY_VERSION_NUMBER = "version.number";
-        static readonly String PROPERTY_INSTALLER_URL = "version.installerUrl";
+        private static readonly string PROPERTY_VERSION_NUMBER = "version.number";
+        private static readonly string PROPERTY_INSTALLER_URL = "version.installerUrl";
 
-        public ConfigurationService ConfigurationService { get; set; }
-
-        Timer timer;
-        int updatePeriod = DEFAULT_UPDATE_PERIOD;
-        bool updating;
-        bool timerEnabled;
+        private Timer timer;
+        private bool timerEnabled;
+        private readonly int updatePeriod = DEFAULT_UPDATE_PERIOD;
+        private bool updating;
 
         public ApplicationUpdateService()
         {
             timerEnabled = false;
             updating = false;
         }
+
+        public ConfigurationService ConfigurationService { get; set; }
+        public event NewVersionAvailableHandler NewVersionAvailable;
 
         public void Initialize()
         {
@@ -74,11 +72,8 @@ namespace JenkinsTray.BusinessComponents
 
         public void CheckForUpdates_Asynchronous(UpdateSource source)
         {
-            BackgroundWorker worker = new BackgroundWorker();
-            worker.DoWork += delegate
-            {
-                DoCheckForUpdates(source);
-            };
+            var worker = new BackgroundWorker();
+            worker.DoWork += delegate { DoCheckForUpdates(source); };
             worker.RunWorkerAsync();
         }
 
@@ -94,15 +89,17 @@ namespace JenkinsTray.BusinessComponents
             {
                 DoCheckForUpdates(UpdateSource.Timer);
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         // returns true if an update was found, false otherwise
         private bool DoCheckForUpdates(UpdateSource source)
         {
-            bool result = false;
+            var result = false;
 
-            if (source == ApplicationUpdateService.UpdateSource.Timer &&
+            if (source == UpdateSource.Timer &&
                 ConfigurationService.GeneralSettings.CheckForUpdates == false)
             {
                 logger.Info("Update check is already disabled in settings; stopping timer, from " + source);
@@ -148,20 +145,20 @@ namespace JenkinsTray.BusinessComponents
         // returns true if an update was found, false otherwise
         private bool DoCheckForUpdatesInternal()
         {
-            bool result = false;
+            var result = false;
             logger.Info("Checking for updates from " + URL);
 
             // download the properties file
-            WebClient webClient = new WebClient();
-            String versionProperties = webClient.DownloadString(URL);
+            var webClient = new WebClient();
+            var versionProperties = webClient.DownloadString(URL);
 
             // extract version details
-            IPropertiesContainer properties = PropertiesFile.ReadProperties(versionProperties, "version.properties");
-            string versionStr = properties[PROPERTY_VERSION_NUMBER];
-            string installerUrl = properties[PROPERTY_INSTALLER_URL];
+            var properties = PropertiesFile.ReadProperties(versionProperties, "version.properties");
+            var versionStr = properties[PROPERTY_VERSION_NUMBER];
+            var installerUrl = properties[PROPERTY_INSTALLER_URL];
 
-            Version version = new Version(versionStr);
-            Version currentVersion = GetCurrentVersion();
+            var version = new Version(versionStr);
+            var currentVersion = GetCurrentVersion();
 
             logger.Info("Current version: " + currentVersion);
             logger.Info("Last version: " + version);
@@ -188,7 +185,7 @@ namespace JenkinsTray.BusinessComponents
 
         private Version GetCurrentVersion()
         {
-            return new Version(FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion);
+            return new Version(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion);
         }
     }
 }

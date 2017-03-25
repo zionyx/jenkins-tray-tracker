@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Diagnostics;
-using Common.Logging;
 using System.Reflection;
+using System.Windows.Forms;
+using Common.Logging;
 using JenkinsTray.Utils;
 
 namespace JenkinsTray.Entities
@@ -14,7 +11,12 @@ namespace JenkinsTray.Entities
     {
         public BuildTransition BuildTransition { set; get; }
         public string Caption { set; get; }
-        public ToolTipIcon Icon { get { return this.BuildTransition.Icon; } }
+
+        public ToolTipIcon Icon
+        {
+            get { return BuildTransition.Icon; }
+        }
+
         public string Message { set; get; }
 
         public void CleanUp()
@@ -26,9 +28,9 @@ namespace JenkinsTray.Entities
 
     public class ProjectActivity
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly Project project;
-        private CaptionAndMessage captionAndMessage;
+        private readonly CaptionAndMessage captionAndMessage;
         public bool HasNewBuild { get; set; }
 
         public ProjectActivity(Project project)
@@ -54,12 +56,12 @@ namespace JenkinsTray.Entities
 
         public bool HasStatusChanged
         {
-            get { return (project.PreviousStatus != null ? project.PreviousStatus.Key != project.Status.Key : false); }
+            get { return project.PreviousStatus != null ? project.PreviousStatus.Key != project.Status.Key : false; }
         }
 
         public bool HasNewBuildStarted
         {
-            get { return HasNewBuild || ( HasStatusChanged && IsBuilding ); }
+            get { return HasNewBuild || (HasStatusChanged && IsBuilding); }
         }
 
         public bool HasBuildEnded
@@ -69,7 +71,7 @@ namespace JenkinsTray.Entities
 
         public bool IsAnotherBuildComplete
         {
-            get { return ( HasBuildEnded && HasNewBuild ) || ( !IsBuilding && HasNewBuild ); }
+            get { return (HasBuildEnded && HasNewBuild) || (!IsBuilding && HasNewBuild); }
         }
 
         public bool WasLastBuildSuccessful
@@ -81,8 +83,8 @@ namespace JenkinsTray.Entities
         {
             get
             {
-                return ( HasBuildEnded || HasNewBuildStarted ) && 
-                    (project.PreviousStatusValue > BuildStatusEnum.Disabled && project.StatusValue > BuildStatusEnum.Disabled);
+                return (HasBuildEnded || HasNewBuildStarted) && project.PreviousStatusValue > BuildStatusEnum.Disabled &&
+                       project.StatusValue > BuildStatusEnum.Disabled;
             }
         }
 
@@ -108,10 +110,12 @@ namespace JenkinsTray.Entities
         {
             get
             {
-                string Source = string.Empty;
-                BuildDetails lastBuild = project.LastBuild;
-                BuildCause firstBuildCause = project.LastBuild != null && project.LastBuild.Causes != null ? project.LastBuild.Causes.FirstBuildCause : null;
-                BuildCauseEnum buildCauseEnum = firstBuildCause != null ? firstBuildCause.Cause : BuildCauseEnum.Unknown;
+                var Source = string.Empty;
+                var lastBuild = project.LastBuild;
+                var firstBuildCause = project.LastBuild != null && project.LastBuild.Causes != null
+                    ? project.LastBuild.Causes.FirstBuildCause
+                    : null;
+                var buildCauseEnum = firstBuildCause != null ? firstBuildCause.Cause : BuildCauseEnum.Unknown;
                 captionAndMessage.CleanUp();
 
                 //  Filters out invalid data and ignores re-Enabled projects
@@ -122,7 +126,9 @@ namespace JenkinsTray.Entities
                         case BuildCauseEnum.SCM:
                             if (lastBuild.Users.Count() == 1)
                             {
-                                Source = string.Format(" (commits by {0})", StringUtils.Join(lastBuild.Users, JenkinsTrayResources.BuildDetails_UserSeparator));
+                                Source = string.Format(" (commits by {0})",
+                                                       StringUtils.Join(lastBuild.Users,
+                                                                        JenkinsTrayResources.BuildDetails_UserSeparator));
                             }
                             else
                             {
@@ -130,7 +136,9 @@ namespace JenkinsTray.Entities
                             }
                             break;
                         case BuildCauseEnum.User:
-                            Source = !string.IsNullOrEmpty(firstBuildCause.UserID) ? string.Format(" (triggered by {0})", firstBuildCause.UserID) : " (forced)";
+                            Source = !string.IsNullOrEmpty(firstBuildCause.UserID)
+                                ? string.Format(" (triggered by {0})", firstBuildCause.UserID)
+                                : " (forced)";
                             break;
                         case BuildCauseEnum.RemoteHost:
                             Source = " (started remotely)";
@@ -147,8 +155,10 @@ namespace JenkinsTray.Entities
                     {
                         captionAndMessage.BuildTransition = BuildTransition.Successful;
                         captionAndMessage.Caption = "Project Name: " + project;
-                        captionAndMessage.Message = buildCauseEnum == BuildCauseEnum.User && !string.IsNullOrEmpty(firstBuildCause.UserID) ?
-                            string.Format(UserStartsBuild, firstBuildCause.UserID) : string.Format(BuildStarted, Source);
+                        captionAndMessage.Message = buildCauseEnum == BuildCauseEnum.User &&
+                                                    !string.IsNullOrEmpty(firstBuildCause.UserID)
+                            ? string.Format(UserStartsBuild, firstBuildCause.UserID)
+                            : string.Format(BuildStarted, Source);
                     }
                     else
                     {
@@ -170,58 +180,65 @@ namespace JenkinsTray.Entities
                             case BuildStatusEnum.Successful:
                             case BuildStatusEnum.Unstable:
                             case BuildStatusEnum.Failed:
+                            {
+                                var wasSuccessful = project.PreviousStatusValue == BuildStatusEnum.Successful;
+                                var wasUnstable = project.PreviousStatusValue == BuildStatusEnum.Unstable;
+                                var wasFailing = project.PreviousStatusValue == BuildStatusEnum.Failed;
+
+                                var isSuccessful = project.StatusValue == BuildStatusEnum.Successful;
+                                var isUnstable = project.StatusValue == BuildStatusEnum.Unstable;
+                                var isFailing = project.StatusValue == BuildStatusEnum.Failed;
+
+                                if (wasSuccessful && isUnstable)
+                                    captionAndMessage.Message = string.Format(Unstable, Source);
+                                else if (wasSuccessful && isFailing)
+                                    captionAndMessage.Message = string.Format(Broken, Source);
+                                else if (wasSuccessful && isSuccessful) captionAndMessage.Message = StillSuccessful;
+                                else if (wasUnstable && isUnstable)
                                 {
-                                    bool wasSuccessful = project.PreviousStatusValue == BuildStatusEnum.Successful;
-                                    bool wasUnstable = project.PreviousStatusValue == BuildStatusEnum.Unstable;
-                                    bool wasFailing = project.PreviousStatusValue == BuildStatusEnum.Failed;
-
-                                    bool isSuccessful = project.StatusValue == BuildStatusEnum.Successful;
-                                    bool isUnstable = project.StatusValue == BuildStatusEnum.Unstable;
-                                    bool isFailing = project.StatusValue == BuildStatusEnum.Failed;
-
-                                    if (wasSuccessful && isUnstable) captionAndMessage.Message = string.Format(Unstable, Source);
-                                    else if (wasSuccessful && isFailing) captionAndMessage.Message = string.Format(Broken, Source);
-                                    else if (wasSuccessful && isSuccessful) captionAndMessage.Message = StillSuccessful;
-                                    else if (wasUnstable && isUnstable)
+                                    captionAndMessage.Message = string.Format(StillUnstable, Source);
+                                }
+                                else if (wasUnstable && isFailing)
+                                {
+                                    if (buildCauseEnum == BuildCauseEnum.SCM)
                                     {
-                                        captionAndMessage.Message = string.Format(StillUnstable, Source);
+                                        captionAndMessage.Message = string.Format(BreakingChanges, Source);
                                     }
-                                    else if (wasUnstable && isFailing)
-                                    {
-                                        if (buildCauseEnum == BuildCauseEnum.SCM)
-                                        {
-                                            captionAndMessage.Message = string.Format(BreakingChanges, Source);
-                                        }
-                                        else
-                                        {
-                                            captionAndMessage.Message = string.Format(Broken, Source);
-                                        }
-                                    }
-                                    else if (wasUnstable && isSuccessful) captionAndMessage.Message = FixedUnstable;
-                                    else if (wasFailing && isUnstable) captionAndMessage.Message = string.Format(FixedBrokenButUnstable, Source);
-                                    else if (wasFailing && isFailing)
-                                    {
-                                        if (buildCauseEnum == BuildCauseEnum.SCM)
-                                        {
-                                            captionAndMessage.Message = string.Format(FailToFix, Source);
-                                        }
-                                        else
-                                        {
-                                            captionAndMessage.Message = string.Format(StillFailing, Source);
-                                        }
-                                    }
-                                    else if (wasFailing && isSuccessful) captionAndMessage.Message = FixedBroken;
-                                    else if (isUnstable) captionAndMessage.Message = string.Format(Unstable, Source);
-                                    else if (isFailing) captionAndMessage.Message = Broken;
-                                    else if (isSuccessful) captionAndMessage.Message = string.Format(SuccessfulBuild, Source);
                                     else
                                     {
-                                        throw new Exception("Build Activity does not meet all conditions in the logic: " + project + ", status is " + project.Status.ToString());
+                                        captionAndMessage.Message = string.Format(Broken, Source);
                                     }
                                 }
+                                else if (wasUnstable && isSuccessful) captionAndMessage.Message = FixedUnstable;
+                                else if (wasFailing && isUnstable)
+                                    captionAndMessage.Message = string.Format(FixedBrokenButUnstable, Source);
+                                else if (wasFailing && isFailing)
+                                {
+                                    if (buildCauseEnum == BuildCauseEnum.SCM)
+                                    {
+                                        captionAndMessage.Message = string.Format(FailToFix, Source);
+                                    }
+                                    else
+                                    {
+                                        captionAndMessage.Message = string.Format(StillFailing, Source);
+                                    }
+                                }
+                                else if (wasFailing && isSuccessful) captionAndMessage.Message = FixedBroken;
+                                else if (isUnstable) captionAndMessage.Message = string.Format(Unstable, Source);
+                                else if (isFailing) captionAndMessage.Message = Broken;
+                                else if (isSuccessful)
+                                    captionAndMessage.Message = string.Format(SuccessfulBuild, Source);
+                                else
+                                {
+                                    throw new Exception(
+                                        "Build Activity does not meet all conditions in the logic: " +
+                                        project + ", status is " + project.Status);
+                                }
+                            }
                                 break;
                             default:
-                                throw new Exception("Build Activity does not meet all conditions in the logic: " + project + ", status is " + project.Status.ToString());
+                                throw new Exception("Build Activity does not meet all conditions in the logic: " +
+                                                    project + ", status is " + project.Status);
                         }
                     }
                 }
@@ -230,20 +247,43 @@ namespace JenkinsTray.Entities
         }
 
         //  Build ended
-        private static readonly string Aborted = "Build is aborted";                                    //  * -> Aborted.
-        private static readonly string FailToFix = "Recent attempt{0} to fix build failed";             //  Failure -> Failure. Supports Cause.
-        private static readonly string StillUnstable = "Build{0} is still unstable!";                   //  Unstable -> Unstable. Without Cause.
-        private static readonly string StillSuccessful = "Yet another successful build!";               //  Successful -> Successful. Ignores Cause.
-        private static readonly string StillFailing = "Build{0} is still failing!";                     //  Failure -> Failure. NOT SCM change.
-        private static readonly string FixedBroken = "Recent commits have fixed the build";             //  Failure -> Success. Ignores Cause.
-        private static readonly string FixedUnstable = "Recent commits have stablized the build";       //  Unstable -> Success. Has SCM change.
-        private static readonly string BreakingChanges = "Recent commits{0} have failed the build";     //  Unstable -> Failure. Supports Cause.
-        private static readonly string Broken = "Build{0} is broken";                                   //  Unstable, Success -> Failure. NOT by SCM change.
-        private static readonly string FixedBrokenButUnstable = "Build{0} is fixed but remains unstable";  //  Failure -> Unstable. Supports SCM change.
-        private static readonly string Unstable = "Build{0} is unstable";                               //  Success, Unknown -> Unstable. Supports SCM change.
-        private static readonly string SuccessfulBuild = "Build{0} completes successfully";             //  * -> Success. Supports Cause.
+        private static readonly string Aborted = "Build is aborted"; //  * -> Aborted.
+
+        private static readonly string FailToFix = "Recent attempt{0} to fix build failed";
+                                       //  Failure -> Failure. Supports Cause.
+
+        private static readonly string StillUnstable = "Build{0} is still unstable!";
+                                       //  Unstable -> Unstable. Without Cause.
+
+        private static readonly string StillSuccessful = "Yet another successful build!";
+                                       //  Successful -> Successful. Ignores Cause.
+
+        private static readonly string StillFailing = "Build{0} is still failing!";
+                                       //  Failure -> Failure. NOT SCM change.
+
+        private static readonly string FixedBroken = "Recent commits have fixed the build";
+                                       //  Failure -> Success. Ignores Cause.
+
+        private static readonly string FixedUnstable = "Recent commits have stablized the build";
+                                       //  Unstable -> Success. Has SCM change.
+
+        private static readonly string BreakingChanges = "Recent commits{0} have failed the build";
+                                       //  Unstable -> Failure. Supports Cause.
+
+        private static readonly string Broken = "Build{0} is broken";
+                                       //  Unstable, Success -> Failure. NOT by SCM change.
+
+        private static readonly string FixedBrokenButUnstable = "Build{0} is fixed but remains unstable";
+                                       //  Failure -> Unstable. Supports SCM change.
+
+        private static readonly string Unstable = "Build{0} is unstable";
+                                       //  Success, Unknown -> Unstable. Supports SCM change.
+
+        private static readonly string SuccessfulBuild = "Build{0} completes successfully";
+                                       //  * -> Success. Supports Cause.
+
         //  Build started
-        private static readonly string BuildStarted = "Build{0} has started";                           //  * -> IsBuilding. Supports Cause.
-        private static readonly string UserStartsBuild = "{0} started a build";                         //  * -> IsBuilding. By User.
+        private static readonly string BuildStarted = "Build{0} has started"; //  * -> IsBuilding. Supports Cause.
+        private static readonly string UserStartsBuild = "{0} started a build"; //  * -> IsBuilding. By User.
     }
 }

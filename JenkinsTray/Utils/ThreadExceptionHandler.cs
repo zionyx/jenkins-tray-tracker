@@ -1,24 +1,18 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-
 using Common.Logging;
-
-using JenkinsTray.Utils.Logging;
 using DevExpress.XtraEditors;
+using JenkinsTray.Utils.Logging;
 
 namespace JenkinsTray.Utils
 {
-    static class ThreadExceptionHandler
+    internal static class ThreadExceptionHandler
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        /// 
         /// Handles the thread exception.
-        /// 
         public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             HandleException(e.Exception);
@@ -40,9 +34,9 @@ namespace JenkinsTray.Utils
                 try
                 {
                     XtraMessageBox.Show(JenkinsTrayResources.FatalError_Message,
-                        JenkinsTrayResources.FatalError_Caption,
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Stop);
+                                        JenkinsTrayResources.FatalError_Caption,
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Stop);
                 }
                 finally
                 {
@@ -51,18 +45,16 @@ namespace JenkinsTray.Utils
             }
         }
 
-        /// 
         /// Creates and displays the error message.
-        /// 
         private static DialogResult ShowThreadExceptionDialog(Exception ex)
         {
-            string errorMessage = String.Format(JenkinsTrayResources.SeriousErrorBoxMessage,
-                ex.GetType(), ex.Message);
+            var errorMessage = string.Format(JenkinsTrayResources.SeriousErrorBoxMessage,
+                                             ex.GetType(), ex.Message);
 
             return XtraMessageBox.Show(errorMessage,
-                JenkinsTrayResources.ErrorBoxCaption,
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Stop);
+                                       JenkinsTrayResources.ErrorBoxCaption,
+                                       MessageBoxButtons.OK,
+                                       MessageBoxIcon.Stop);
         }
     }
 }

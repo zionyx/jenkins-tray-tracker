@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using JenkinsTray.Utils;
 using NUnit.Framework;
-using JenkinsTray.Utils;
 
 namespace JenkinsTray.Tests.Utils
 {
@@ -11,9 +7,17 @@ namespace JenkinsTray.Tests.Utils
     public class StringUtilsTests
     {
         [Test]
-        public void TestSimpleName()
+        public void TestAngleBrackets()
         {
-            Assert.AreEqual("User", StringUtils.ExtractUserName("User"));
+            Assert.AreEqual("User Name", StringUtils.ExtractUserName("User Name <user@example.com>"));
+            Assert.AreEqual("<user@example.com>", StringUtils.ExtractUserName("<user@example.com>"));
+        }
+
+        [Test]
+        public void TestBrackets()
+        {
+            Assert.AreEqual("User Name", StringUtils.ExtractUserName("User Name (user@example.com)"));
+            Assert.AreEqual("(user@example.com)", StringUtils.ExtractUserName("(user@example.com)"));
         }
 
         [Test]
@@ -29,23 +33,15 @@ namespace JenkinsTray.Tests.Utils
         }
 
         [Test]
+        public void TestSimpleName()
+        {
+            Assert.AreEqual("User", StringUtils.ExtractUserName("User"));
+        }
+
+        [Test]
         public void TestTrimming()
         {
             Assert.AreEqual("User", StringUtils.ExtractUserName("User    "));
-        }
-
-        [Test]
-        public void TestAngleBrackets()
-        {
-            Assert.AreEqual("User Name", StringUtils.ExtractUserName("User Name <user@example.com>"));
-            Assert.AreEqual("<user@example.com>", StringUtils.ExtractUserName("<user@example.com>"));
-        }
-
-        [Test]
-        public void TestBrackets()
-        {
-            Assert.AreEqual("User Name", StringUtils.ExtractUserName("User Name (user@example.com)"));
-            Assert.AreEqual("(user@example.com)", StringUtils.ExtractUserName("(user@example.com)"));
         }
     }
 }

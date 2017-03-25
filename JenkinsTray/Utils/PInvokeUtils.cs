@@ -1,18 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace JenkinsTray.Utils
 {
-    static class PInvokeUtils
+    internal static class PInvokeUtils
     {
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, Int32 wParam, Int32 lParam);
+        private const int SC_RESTORE = 0xF120;
+        private const int WM_SYSCOMMAND = 0x112;
 
-        const Int32 SC_RESTORE = 0xF120;
-        const Int32 WM_SYSCOMMAND = 0x112;
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
 
         public static void RestoreForm(Form form)
         {

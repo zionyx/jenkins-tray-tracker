@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Reflection;
-
 using Common.Logging;
-
 using JenkinsTray.Utils.Collections;
 
 namespace JenkinsTray.Utils.IO
@@ -16,43 +12,7 @@ namespace JenkinsTray.Utils.IO
     {
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        string filename;
-
-        public static PropertiesFile ReadPropertiesFile(string filename)
-        {
-            PropertiesFile file = new PropertiesFile(filename);
-            file.ReadProperties();
-            return file;
-        }
-
-        public static PropertiesFile ReadPropertiesFileOrFail(string filename)
-        {
-            PropertiesFile file = new PropertiesFile(filename);
-            file.ReadPropertiesOrFail();
-            return file;
-        }
-
-        public static IPropertiesContainer ReadProperties(Stream stream, string id)
-        {
-            PropertiesContainer properties = new PropertiesContainer(id);
-            StreamReader streamReader = new StreamReader(stream);
-            ParseStream(streamReader, properties);
-            return properties;
-        }
-
-        public static IPropertiesContainer ReadProperties(string content, string id)
-        {
-            PropertiesContainer properties = new PropertiesContainer(id);
-            StringReader reader = new StringReader(content);
-            ParseStream(reader, properties);
-            return properties;
-        }
-
-        public static bool CanReadFile(string metadataFile)
-        {
-            bool exists = File.Exists(metadataFile);
-            return exists;
-        }
+        private readonly string filename;
 
         public PropertiesFile(string filename)
             : base(filename)
@@ -60,6 +20,42 @@ namespace JenkinsTray.Utils.IO
             if (filename == null)
                 throw new ArgumentNullException("filename");
             this.filename = filename;
+        }
+
+        public static PropertiesFile ReadPropertiesFile(string filename)
+        {
+            var file = new PropertiesFile(filename);
+            file.ReadProperties();
+            return file;
+        }
+
+        public static PropertiesFile ReadPropertiesFileOrFail(string filename)
+        {
+            var file = new PropertiesFile(filename);
+            file.ReadPropertiesOrFail();
+            return file;
+        }
+
+        public static IPropertiesContainer ReadProperties(Stream stream, string id)
+        {
+            var properties = new PropertiesContainer(id);
+            var streamReader = new StreamReader(stream);
+            ParseStream(streamReader, properties);
+            return properties;
+        }
+
+        public static IPropertiesContainer ReadProperties(string content, string id)
+        {
+            var properties = new PropertiesContainer(id);
+            var reader = new StringReader(content);
+            ParseStream(reader, properties);
+            return properties;
+        }
+
+        public static bool CanReadFile(string metadataFile)
+        {
+            var exists = File.Exists(metadataFile);
+            return exists;
         }
 
         public void WriteProperties()
@@ -77,11 +73,11 @@ namespace JenkinsTray.Utils.IO
         // Reads the properties from the file, and returns a boolean indicating wheter file was found or not
         public bool ReadProperties(string filename, bool isUserFile)
         {
-            bool exists = File.Exists(filename);
+            var exists = File.Exists(filename);
             if (exists)
             {
                 // read properties
-                IPropertiesContainer properties = isUserFile ? UserProperties : DefaultProperties;
+                var properties = isUserFile ? UserProperties : DefaultProperties;
                 properties.ReadOnly = false;
                 ParseFile(filename, properties);
                 properties.ReadOnly = true;
@@ -99,7 +95,7 @@ namespace JenkinsTray.Utils.IO
         // reads the properties from the file, and throws an exception if the file was not found
         public void ReadPropertiesOrFail()
         {
-            bool exists = ReadProperties();
+            var exists = ReadProperties();
             if (!exists)
                 throw new Exception("Properties file not found: " + filename);
         }
@@ -109,7 +105,7 @@ namespace JenkinsTray.Utils.IO
             if (logger.IsInfoEnabled)
                 logger.Info("Parsing file: " + filename);
 
-            StreamReader stream = File.OpenText(filename);
+            var stream = File.OpenText(filename);
             ParseStream(stream, properties);
             stream.Close();
             stream.Dispose();
@@ -118,7 +114,7 @@ namespace JenkinsTray.Utils.IO
         private static void ParseStream(TextReader stream, IPropertiesContainer properties)
         {
             string line;
-            int i = 1;
+            var i = 1;
             while ((line = stream.ReadLine()) != null)
                 ParseLine(line, i++, properties);
         }
@@ -128,15 +124,15 @@ namespace JenkinsTray.Utils.IO
             if (line.Trim() == "" || line.StartsWith("#"))
                 return;
 
-            int index = line.IndexOf('=');
+            var index = line.IndexOf('=');
             if (index == -1)
             {
                 logger.Error("Could not parse line " + lineNumber + ": " + line);
                 throw new Exception("Could not parse line " + lineNumber + ": " + line);
             }
 
-            string propKey = line.Substring(0, index).Trim();
-            string propValue = line.Substring(index + 1).Trim();
+            var propKey = line.Substring(0, index).Trim();
+            var propValue = line.Substring(index + 1).Trim();
 
             properties[propKey] = propValue;
         }
@@ -146,8 +142,8 @@ namespace JenkinsTray.Utils.IO
             if (logger.IsInfoEnabled)
                 logger.Info("Writing file: " + filename);
 
-            StreamWriter file = new StreamWriter(filename);
-            foreach (KeyValuePair<string, string> pair in UserProperties)
+            var file = new StreamWriter(filename);
+            foreach (var pair in UserProperties)
             {
                 file.Write(pair.Key);
                 file.Write("=");

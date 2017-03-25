@@ -1,29 +1,23 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using DevExpress.XtraEditors;
-using JenkinsTray.Entities;
 using JenkinsTray.BusinessComponents;
+using JenkinsTray.Entities;
 using Spring.Context.Support;
 
 namespace JenkinsTray.UI
 {
-    public partial class ClaimBuildForm : DevExpress.XtraEditors.XtraForm
+    public partial class ClaimBuildForm : XtraForm
     {
-        ClaimService claimService;
+        private BuildDetails buildDetails;
+        private readonly ClaimService claimService;
 
-        Project project;
-        BuildDetails buildDetails;
+        private Project project;
 
         public ClaimBuildForm()
         {
             InitializeComponent();
 
-            claimService = (ClaimService)ContextRegistry.GetContext().GetObject("ClaimService");
+            claimService = (ClaimService) ContextRegistry.GetContext().GetObject("ClaimService");
         }
 
         public void Initialize(Project project, BuildDetails buildDetails)
@@ -37,8 +31,8 @@ namespace JenkinsTray.UI
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            string reason = reasonMemoEdit.Text;
-            bool sticky = stickyCheckEdit.Checked;
+            var reason = reasonMemoEdit.Text;
+            var sticky = stickyCheckEdit.Checked;
             claimService.ClaimBuild(project, buildDetails, reason, sticky);
         }
 

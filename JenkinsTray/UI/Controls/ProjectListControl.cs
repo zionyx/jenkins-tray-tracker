@@ -1,32 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
+using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
+using DevExpress.XtraGrid.Views.Base;
 using JenkinsTray.BusinessComponents;
 using JenkinsTray.Entities;
-using DevExpress.XtraBars;
 using JenkinsTray.Utils.BackgroundProcessing;
-using Spring.Context.Support;
 
 namespace JenkinsTray.UI.Controls
 {
-    public partial class ProjectListControl : DevExpress.XtraEditors.XtraUserControl
+    public partial class ProjectListControl : XtraUserControl
     {
-        Server server;
-        List<Project> projectsDataSource;
-
-        public ServersSettingsController Controller { get; set; }
-        public ConfigurationService ConfigurationService { get; set; }
-        public JenkinsService JenkinsService { get; set; }
+        private List<Project> projectsDataSource;
+        private Server server;
 
         public ProjectListControl()
         {
             InitializeComponent();
         }
+
+        public ServersSettingsController Controller { get; set; }
+        public ConfigurationService ConfigurationService { get; set; }
+        public JenkinsService JenkinsService { get; set; }
 
         public void Initialize()
         {
@@ -56,37 +53,37 @@ namespace JenkinsTray.UI.Controls
             // disable the window, change the cursor, update the status
             Cursor.Current = Cursors.WaitCursor;
             Enabled = false;
-            string status = string.Format(JenkinsTrayResources.LoadingProjects_FormatString, server.Url);
+            var status = string.Format(JenkinsTrayResources.LoadingProjects_FormatString, server.Url);
             Controller.SetStatus(status, true);
 
             // run the process in background
-            Process process = new Process("Loading project " + server.Url);
+            var process = new Process("Loading project " + server.Url);
             IList<Project> projects = null;
-            process.DoWork += delegate
-            {
-                projects = JenkinsService.LoadProjects(server);
-            };
+            process.DoWork += delegate { projects = JenkinsService.LoadProjects(server); };
             process.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
-            {
-                string endStatus = "";
+                                          {
+                                              var endStatus = "";
 
-                if (e.Error == null)
-                {
-                    var dataSource = new List<Project>();
-                    foreach (Project project in projects)
-                        dataSource.Add(project);
-                    SetProjectsDataSource(dataSource);
-                }
-                else
-                {
-                    endStatus = string.Format(JenkinsTrayResources.FailedLoadingProjects_FormatString, server.Url);
-                }
+                                              if (e.Error == null)
+                                              {
+                                                  var dataSource = new List<Project>();
+                                                  foreach (var project in projects)
+                                                      dataSource.Add(project);
+                                                  SetProjectsDataSource(dataSource);
+                                              }
+                                              else
+                                              {
+                                                  endStatus =
+                                                      string.Format(
+                                                          JenkinsTrayResources.FailedLoadingProjects_FormatString,
+                                                          server.Url);
+                                              }
 
-                // enable the window, change the cursor, update the status
-                Enabled = true;
-                Cursor.Current = Cursors.Default;
-                Controller.SetStatus(endStatus, false);
-            };
+                                              // enable the window, change the cursor, update the status
+                                              Enabled = true;
+                                              Cursor.Current = Cursors.Default;
+                                              Controller.SetStatus(endStatus, false);
+                                          };
             BackgroundProcessExecutor.Execute(process);
 #endif
         }
@@ -97,18 +94,18 @@ namespace JenkinsTray.UI.Controls
             projectsGridControl.DataSource = projectsDataSource;
         }
 
-        private void projectsGridView_CustomUnboundColumnData(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDataEventArgs e)
+        private void projectsGridView_CustomUnboundColumnData(object sender, CustomColumnDataEventArgs e)
         {
             if (e.IsGetData)
             {
-                Project project = projectsDataSource[e.ListSourceRowIndex];
-                bool selected = project.Server.Projects.Contains(project);
+                var project = projectsDataSource[e.ListSourceRowIndex];
+                var selected = project.Server.Projects.Contains(project);
                 e.Value = selected;
             }
             else if (e.IsSetData)
             {
-                Project project = projectsDataSource[e.ListSourceRowIndex];
-                bool selected = (bool)e.Value;
+                var project = projectsDataSource[e.ListSourceRowIndex];
+                var selected = (bool) e.Value;
                 if (selected)
                     ConfigurationService.AddProject(project);
                 else
@@ -119,7 +116,7 @@ namespace JenkinsTray.UI.Controls
         private void projectSelectedCheckEdit_EditValueChanged(object sender, EventArgs e)
         {
             // validate the check box value as soon as it is clicked
-            ((CheckEdit)sender).DoValidate();
+            ((CheckEdit) sender).DoValidate();
             projectsGridView.CloseEditor();
         }
 
@@ -163,7 +160,7 @@ namespace JenkinsTray.UI.Controls
         {
             switch (char.ToUpper(e.KeyChar))
             {
-                case (char)Keys.Space:
+                case (char) Keys.Space:
                     CheckSelectedProject();
                     e.Handled = true;
                     break;
@@ -174,10 +171,10 @@ namespace JenkinsTray.UI.Controls
 
         private void CheckSelectedProject()
         {
-            int[] selected = projectsGridView.GetSelectedRows();
+            var selected = projectsGridView.GetSelectedRows();
             if (selected.Length == 1 && selected[0] <= projectsGridView.RowCount)
             {
-                bool isChecked = (bool)projectsGridView.GetRowCellValue(selected[0], projectSelectedGridColumn);
+                var isChecked = (bool) projectsGridView.GetRowCellValue(selected[0], projectSelectedGridColumn);
                 projectsGridView.SetRowCellValue(selected[0], projectSelectedGridColumn, !isChecked);
             }
         }

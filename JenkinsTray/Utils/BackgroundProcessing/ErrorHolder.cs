@@ -1,17 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JenkinsTray.Utils.BackgroundProcessing
 {
-    class ErrorHolder
+    internal class ErrorHolder
     {
-        private Exception error;
-
-        public Exception Error
-        {
-            get { return error; }
-            set { error = value; }
-        }
+        public Exception Error { get; set; }
     }
 }

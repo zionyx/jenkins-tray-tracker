@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 
 namespace JenkinsTray.Utils
@@ -9,7 +6,7 @@ namespace JenkinsTray.Utils
     {
         public static string SelectSingleNodeText(XmlNode xml, string xpath)
         {
-            XmlNode node = xml.SelectSingleNode(xpath);
+            var node = xml.SelectSingleNode(xpath);
             if (node == null)
                 return null;
             return node.InnerText;
@@ -17,10 +14,10 @@ namespace JenkinsTray.Utils
 
         public static bool? SelectSingleNodeBoolean(XmlNode xml, string xpath)
         {
-            XmlNode node = xml.SelectSingleNode(xpath);
+            var node = xml.SelectSingleNode(xpath);
             if (node == null)
                 return null;
-            return (node.InnerText == "true");
+            return node.InnerText == "true";
         }
     }
 }

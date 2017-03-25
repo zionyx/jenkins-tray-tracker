@@ -1,37 +1,31 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
+using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
+using DevExpress.XtraGrid.Views.Base;
 using JenkinsTray.BusinessComponents;
 using JenkinsTray.Entities;
-using DevExpress.XtraBars;
-using JenkinsTray.Utils.BackgroundProcessing;
-using Spring.Context.Support;
 
 namespace JenkinsTray.UI.Controls
 {
-    public partial class ServerListControl : DevExpress.XtraEditors.XtraUserControl
+    public partial class ServerListControl : XtraUserControl
     {
-        BindingList<Server> serversDataSource;
-
-        bool initialized;
-
-        public ServersSettingsController Controller { get; set; }
-        public ConfigurationService ConfigurationService { get; set; }
+        private bool initialized;
+        private BindingList<Server> serversDataSource;
 
         public ServerListControl()
         {
             InitializeComponent();
         }
 
+        public ServersSettingsController Controller { get; set; }
+        public ConfigurationService ConfigurationService { get; set; }
+
         public void Initialize()
         {
             serversDataSource = new BindingList<Server>();
-            foreach (Server server in ConfigurationService.Servers)
+            foreach (var server in ConfigurationService.Servers)
                 serversDataSource.Add(server);
             serversGridControl.DataSource = serversDataSource;
 
@@ -40,13 +34,13 @@ namespace JenkinsTray.UI.Controls
             serversGridView_FocusedRowChanged(null, null);
         }
 
-        private void addServerButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void addServerButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
-            EditServerForm namingForm = new EditServerForm();
+            var namingForm = new EditServerForm();
             if (namingForm.ShowDialog() != DialogResult.OK)
                 return;
 
-            Server server = ConfigurationService.AddServer(
+            var server = ConfigurationService.AddServer(
                 namingForm.ServerAddress, namingForm.ServerName,
                 namingForm.Username, namingForm.Password,
                 namingForm.IgnoreUntrustedCertificate);
@@ -60,40 +54,44 @@ namespace JenkinsTray.UI.Controls
         {
             EditSelectedServer();
         }
+
         private void editServerMenuItem_Click(object sender, EventArgs e)
         {
             EditSelectedServer();
         }
+
         private void EditSelectedServer()
         {
-            Server server = GetSelectedServer();
+            var server = GetSelectedServer();
             if (server == null)
                 return;
 
-            EditServerForm namingForm = new EditServerForm(server);
+            var namingForm = new EditServerForm(server);
             if (namingForm.ShowDialog() != DialogResult.OK)
                 return;
 
             ConfigurationService.UpdateServer(server,
-                namingForm.ServerAddress, namingForm.ServerName,
-                namingForm.Username, namingForm.Password,
-                namingForm.IgnoreUntrustedCertificate);
+                                              namingForm.ServerAddress, namingForm.ServerName,
+                                              namingForm.Username, namingForm.Password,
+                                              namingForm.IgnoreUntrustedCertificate);
 
             serversGridView.RefreshData();
             Controller.UpdateProjectList(server);
         }
 
-        private void removeServerButtonItem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private void removeServerButtonItem_ItemClick(object sender, ItemClickEventArgs e)
         {
             RemoveSelectedServer();
         }
+
         private void removeServerMenuItem_Click(object sender, EventArgs e)
         {
             RemoveSelectedServer();
         }
+
         private void RemoveSelectedServer()
         {
-            Server server = GetSelectedServer();
+            var server = GetSelectedServer();
             if (server == null)
                 return;
 
@@ -101,17 +99,17 @@ namespace JenkinsTray.UI.Controls
             ConfigurationService.RemoveServer(server);
         }
 
-        private void serversGridView_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
+        private void serversGridView_FocusedRowChanged(object sender, FocusedRowChangedEventArgs e)
         {
             if (initialized == false)
                 return;
 
-            Server server = GetSelectedServer();
+            var server = GetSelectedServer();
 
             // update the toolbar
             editServerButtonItem.Enabled
                 = removeServerButtonItem.Enabled
-                = server != null;
+                    = server != null;
 
             // update the project list
             Controller.UpdateProjectList(server);
@@ -119,17 +117,17 @@ namespace JenkinsTray.UI.Controls
 
         private Server GetSelectedServer()
         {
-            object row = serversGridView.GetFocusedRow();
-            Server server = row as Server;
+            var row = serversGridView.GetFocusedRow();
+            var server = row as Server;
             return server;
         }
 
         private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            Server server = GetSelectedServer();
+            var server = GetSelectedServer();
             editServerMenuItem.Enabled
                 = removeServerMenuItem.Enabled
-                = (server != null);
+                    = server != null;
         }
     }
 }

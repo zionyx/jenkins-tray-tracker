@@ -1,37 +1,48 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using JenkinsTray.Entities;
-using Iesi.Collections.Generic;
-using JenkinsTray.Utils.IO;
 using System.IO;
 using System.Reflection;
 using Common.Logging;
+using JenkinsTray.Entities;
+using JenkinsTray.Utils.IO;
 using Newtonsoft.Json;
+using Spring.Collections.Generic;
 
 namespace JenkinsTray.BusinessComponents
 {
     public class ConfigurationService
     {
         public delegate void ConfigurationUpdatedHandler();
+
+        private const string JENKINS_TRAY_DIRECTORY = "Jenkins Tray";
+        private const string CONFIGURATION_FILE = "jenkins.configuration";
+
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private Configuration configuration;
+
+        private string userConfigurationFile;
+
+        public Spring.Collections.Generic.ISet<Server> Servers
+        {
+            get { return configuration.Servers; }
+        }
+
+        public NotificationSettings NotificationSettings
+        {
+            get { return configuration.NotificationSettings; }
+        }
+
+        public GeneralSettings GeneralSettings
+        {
+            get { return configuration.GeneralSettings; }
+        }
+
         public event ConfigurationUpdatedHandler ConfigurationUpdated;
-
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        const string JENKINS_TRAY_DIRECTORY = "Jenkins Tray";
-        const string CONFIGURATION_FILE = "jenkins.configuration";
-
-        string userConfigurationFile;
-        Configuration configuration;
-
-        public ISet<Server> Servers { get { return configuration.Servers; } }
-        public NotificationSettings NotificationSettings { get { return configuration.NotificationSettings; } }
-        public GeneralSettings GeneralSettings { get { return configuration.GeneralSettings; } }
 
         public void Initialize()
         {
-            string userAppDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string userAppDataPath = PathHelper.Combine(userAppDataDir, JENKINS_TRAY_DIRECTORY);
+            var userAppDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var userAppDataPath = PathHelper.Combine(userAppDataDir, JENKINS_TRAY_DIRECTORY);
             userConfigurationFile = PathHelper.Combine(userAppDataPath, CONFIGURATION_FILE);
 
             // create the directory in case it does not exist
@@ -53,9 +64,9 @@ namespace JenkinsTray.BusinessComponents
                 }
 
                 // link back projects to their server
-                foreach (Server server in configuration.Servers)
+                foreach (var server in configuration.Servers)
                 {
-                    foreach (Project project in server.Projects)
+                    foreach (var project in server.Projects)
                         project.Server = server;
                 }
             }
@@ -82,19 +93,21 @@ namespace JenkinsTray.BusinessComponents
                 ConfigurationUpdated();
         }
 
-        public Server AddServer(string url, string displayName, string username, string password, bool ignoreUntrustedCertificate)
+        public Server AddServer(string url, string displayName, string username, string password,
+                                bool ignoreUntrustedCertificate)
         {
-            Server server = new Server();
+            var server = new Server();
             BindData(server, url, displayName, username, password, ignoreUntrustedCertificate);
             Servers.Add(server);
             SaveConfiguration();
             return server;
         }
 
-        public void UpdateServer(Server server, string url, string displayName, string username, string password, bool ignoreUntrustedCertificate)
+        public void UpdateServer(Server server, string url, string displayName, string username, string password,
+                                 bool ignoreUntrustedCertificate)
         {
             // note: we need to remove and re-add the server because its hash-code might change
-            string oldServerUrl = server.Url;
+            var oldServerUrl = server.Url;
             Servers.Remove(server);
             BindData(server, url, displayName, username, password, ignoreUntrustedCertificate);
 
@@ -102,9 +115,9 @@ namespace JenkinsTray.BusinessComponents
             if (server.Url.ToUpper().CompareTo(oldServerUrl.ToUpper()) != 0)
             {
                 logger.Info("Server Url updated: " + oldServerUrl + " -> " + server.Url);
-                foreach (Project project in server.Projects)
+                foreach (var project in server.Projects)
                 {
-                    string updatedUrl = project.Url.Replace(oldServerUrl, server.Url);
+                    var updatedUrl = project.Url.Replace(oldServerUrl, server.Url);
                     logger.Info("Project Url updated: " + project.Url + " -> " + updatedUrl);
                     project.Url = updatedUrl;
                 }
@@ -113,12 +126,13 @@ namespace JenkinsTray.BusinessComponents
             SaveConfiguration();
         }
 
-        private void BindData(Server server, string url, string displayName, string username, string password, bool ignoreUntrustedCertificate)
+        private void BindData(Server server, string url, string displayName, string username, string password,
+                              bool ignoreUntrustedCertificate)
         {
             server.Url = url;
             server.DisplayName = displayName;
             server.IgnoreUntrustedCertificate = ignoreUntrustedCertificate;
-            if (String.IsNullOrEmpty(username) == false)
+            if (string.IsNullOrEmpty(username) == false)
                 server.Credentials = new Credentials(username, password);
             else
                 server.Credentials = null;
@@ -135,15 +149,17 @@ namespace JenkinsTray.BusinessComponents
             DoAddProject(project);
             SaveConfiguration();
         }
+
         public void AddProjects(IList<Project> projects)
         {
-            foreach (Project project in projects)
+            foreach (var project in projects)
                 DoAddProject(project);
             SaveConfiguration();
         }
+
         private void DoAddProject(Project project)
         {
-            Server server = project.Server;
+            var server = project.Server;
             server.Projects.Add(project);
         }
 
@@ -152,25 +168,27 @@ namespace JenkinsTray.BusinessComponents
             DoRemoveProject(project);
             SaveConfiguration();
         }
+
         public void RemoveProjects(IList<Project> projects)
         {
-            foreach (Project project in projects)
+            foreach (var project in projects)
                 DoRemoveProject(project);
             SaveConfiguration();
         }
+
         private void DoRemoveProject(Project project)
         {
-            Server server = project.Server;
+            var server = project.Server;
             server.Projects.Remove(project);
         }
 
-        public IDictionary<Server, ISet<Project>> GetProjects()
+        public IDictionary<Server, Spring.Collections.Generic.ISet<Project>> GetProjects()
         {
-            var res = new Dictionary<Server, ISet<Project>>();
-            foreach (Server server in Servers)
+            var res = new Dictionary<Server, Spring.Collections.Generic.ISet<Project>>();
+            foreach (var server in Servers)
             {
                 var projects = new HashedSet<Project>();
-                foreach (Project project in server.Projects)
+                foreach (var project in server.Projects)
                     projects.Add(project);
                 res[server] = projects;
             }
@@ -179,15 +197,15 @@ namespace JenkinsTray.BusinessComponents
 
         public string GetSoundPath(string status)
         {
-            PropertyInfo prop = NotificationSettings.GetType().GetProperty(status + "SoundPath");
-            string res = (string)prop.GetValue(NotificationSettings, null);
+            var prop = NotificationSettings.GetType().GetProperty(status + "SoundPath");
+            var res = (string) prop.GetValue(NotificationSettings, null);
             return res;
         }
 
         public void SetSoundPath(string status, string path)
         {
-            PropertyInfo prop = NotificationSettings.GetType().GetProperty(status + "SoundPath");
-            object obj = prop.GetValue(NotificationSettings, null);
+            var prop = NotificationSettings.GetType().GetProperty(status + "SoundPath");
+            var obj = prop.GetValue(NotificationSettings, null);
 
             //  obj == null, is to allow NOTHING to be set to the status.
             if (obj == null || obj.ToString().CompareTo(path) != 0)
@@ -244,6 +262,15 @@ namespace JenkinsTray.BusinessComponents
             if (GeneralSettings.IntegrateWithClaimPlugin != value)
             {
                 GeneralSettings.IntegrateWithClaimPlugin = value;
+                SaveConfiguration();
+            }
+        }
+
+        public void SetShowProjectDisplayName(bool value)
+        {
+            if (GeneralSettings.ShowProjectDisplayNameInMainUI != value)
+            {
+                GeneralSettings.ShowProjectDisplayNameInMainUI = value;
                 SaveConfiguration();
             }
         }

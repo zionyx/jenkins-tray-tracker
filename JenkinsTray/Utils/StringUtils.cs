@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,8 +8,8 @@ namespace JenkinsTray.Utils
         public static string Join<T>(IEnumerable<T> objects, string separator)
             where T : class
         {
-            string sep = "";
-            StringBuilder res = new StringBuilder();
+            var sep = "";
+            var res = new StringBuilder();
             foreach (object o in objects)
             {
                 res.Append(sep).Append(o);
@@ -25,9 +24,9 @@ namespace JenkinsTray.Utils
         // - "User Name (user@example.com)" -> "User Name"
         public static string ExtractUserName(string fullName)
         {
-            string res = fullName;
+            var res = fullName;
 
-            int index = res.IndexOf(" <");
+            var index = res.IndexOf(" <");
             if (index > 0)
                 res = res.Substring(0, index);
 

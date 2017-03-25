@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace JenkinsTray.Entities
 {
@@ -15,18 +11,14 @@ namespace JenkinsTray.Entities
         public static readonly BuildTransition Successful = new BuildTransition("Build successful", ToolTipIcon.Info);
 
         private readonly string caption;
-        private readonly ToolTipIcon icon;
 
         private BuildTransition(string caption, ToolTipIcon icon)
         {
             this.caption = caption;
-            this.icon = icon;
+            Icon = icon;
         }
 
-        public ToolTipIcon Icon
-        {
-            get { return icon; }
-        }
+        public ToolTipIcon Icon { get; }
 
         public override string ToString()
         {
@@ -37,22 +29,22 @@ namespace JenkinsTray.Entities
         {
             BuildTransition buildTransition = null;
 
-            switch(buildStatusEnum)
+            switch (buildStatusEnum)
             {
                 case BuildStatusEnum.Aborted:
-                    buildTransition = BuildTransition.Aborted;
+                    buildTransition = Aborted;
                     break;
                 case BuildStatusEnum.Failed:
-                    buildTransition = BuildTransition.Failed;
+                    buildTransition = Failed;
                     break;
                 case BuildStatusEnum.Unstable:
-                    buildTransition = BuildTransition.Unstable;
+                    buildTransition = Unstable;
                     break;
                 case BuildStatusEnum.Successful:
-                    buildTransition = BuildTransition.Successful;
+                    buildTransition = Successful;
                     break;
                 default:
-                    buildTransition = BuildTransition.Successful;
+                    buildTransition = Successful;
                     break;
             }
             return buildTransition;

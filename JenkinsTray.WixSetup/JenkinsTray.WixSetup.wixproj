@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -18,7 +18,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="JenkinsTray.wxs" />
@@ -33,12 +34,29 @@
       <Name>WixUIExtension</Name>
     </WixExtension>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JenkinsTray.Setup.CustomActions\JenkinsTray.Setup.CustomActions.csproj">
+      <Name>JenkinsTray.Setup.CustomActions</Name>
+      <Project>{95aa7347-a21a-4f09-80df-d9797b0fa997}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\JenkinsTray\JenkinsTray.csproj">
+      <Name>JenkinsTray</Name>
+      <Project>{a54602ca-6823-4f2c-870f-1d464d9f4814}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-
   <UsingTask AssemblyFile="..\JenkinsTray.Setup.CustomActions\bin\$(Platform)\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
   <Target Name="BeforeBuild">
     <!-- Get the programs assembly version from the .exe file -->
-    <GetAssemblyFileVersion strFilePathAssemblyInfo="..\..\common\VersionInfo.cs">
+    <GetAssemblyFileVersion strFilePathAssemblyInfo="..\common\VersionInfo.cs">
       <Output TaskParameter="strAssemblyFileVersion" PropertyName="strAssemblyFileVersion" />
     </GetAssemblyFileVersion>
     <!-- Store the assembly version number in ProductVersion preprocessor variable -->
@@ -54,7 +72,6 @@
       <Output TaskParameter="Value" PropertyName="TargetPdbName" />
     </CreateProperty>
   </Target>
-
   <!-- Opens the output directory after build -->
   <Target Name="AfterBuild">
   </Target>

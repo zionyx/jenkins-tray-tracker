@@ -4,21 +4,17 @@
 #endif
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
 using System.Reflection;
-
-using Common.Logging;
-
-using JenkinsTray.Utils.Logging;
 using System.Threading;
+using Common.Logging;
+using JenkinsTray.Utils.Logging;
 
 namespace JenkinsTray.Utils.BackgroundProcessing
 {
     public static class BackgroundProcessExecutor
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public static void Execute(Process process)
         {
@@ -32,32 +28,32 @@ namespace JenkinsTray.Utils.BackgroundProcessing
                 logger.Debug("Running process: " + process.Description);
 
             // run that process
-            BackgroundWorker bgWorker = new BackgroundWorker();
-            ErrorHolder errorHolder = new ErrorHolder();
+            var bgWorker = new BackgroundWorker();
+            var errorHolder = new ErrorHolder();
             bgWorker.DoWork += delegate(object sender, DoWorkEventArgs e)
-            {
+                               {
 #if DEBUG
-                if (Thread.CurrentThread.IsBackground == false)
-                    throw new Exception("Should run in background!");
+                                   if (Thread.CurrentThread.IsBackground == false)
+                                       throw new Exception("Should run in background!");
 #endif
 
 #if DONT_CATCH_EXCEPTION
                 process.Run(sender, e);
 #else
-                // here we catch exceptions because otherwise, Visual Studio breaks,
-                // even though the BackgroundWorker itself catches the exceptions!
-                try
-                {
-                    process.Run(sender, e);
-                }
-                catch (Exception error)
-                {
-                    errorHolder.Error = error;
-                }
+                                   // here we catch exceptions because otherwise, Visual Studio breaks,
+                                   // even though the BackgroundWorker itself catches the exceptions!
+                                   try
+                                   {
+                                       process.Run(sender, e);
+                                   }
+                                   catch (Exception error)
+                                   {
+                                       errorHolder.Error = error;
+                                   }
 #endif
-            };
+                               };
             bgWorker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
-            {
+                                           {
 #if false
                 if (Thread.CurrentThread.IsBackground)
                     throw new Exception("Should not run in background!");
@@ -65,16 +61,17 @@ namespace JenkinsTray.Utils.BackgroundProcessing
                     throw new Exception("RunWorkerCompleted called in another thread");
 #endif
 
-                // replace the args with one containing the caught error (if any)
-                e = new RunWorkerCompletedEventArgs(e.Result, errorHolder.Error, e.Cancelled);
+                                               // replace the args with one containing the caught error (if any)
+                                               e = new RunWorkerCompletedEventArgs(e.Result, errorHolder.Error,
+                                                                                   e.Cancelled);
 
-                if (logger.IsDebugEnabled)
-                    logger.Debug("Done running process: " + process.Description);
-                if (e.Error != null)
-                    LoggingHelper.LogError(logger, e.Error);
+                                               if (logger.IsDebugEnabled)
+                                                   logger.Debug("Done running process: " + process.Description);
+                                               if (e.Error != null)
+                                                   LoggingHelper.LogError(logger, e.Error);
 
-                process.OnCompleted(sender, e);
-            };
+                                               process.OnCompleted(sender, e);
+                                           };
             bgWorker.RunWorkerAsync();
         }
     }

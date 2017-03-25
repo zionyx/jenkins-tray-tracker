@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+
 namespace JenkinsTray.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]

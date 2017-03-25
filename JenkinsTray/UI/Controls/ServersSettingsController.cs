@@ -1,36 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using DevExpress.XtraBars;
 using JenkinsTray.BusinessComponents;
-using Spring.Context.Support;
 using JenkinsTray.Entities;
-using DevExpress.XtraBars;
+using Spring.Context.Support;
 
 namespace JenkinsTray.UI.Controls
 {
     public class ServersSettingsController
     {
-        ConfigurationService configurationService;
-        JenkinsService jenkinsService;
+        private readonly ConfigurationService configurationService;
+        private readonly JenkinsService jenkinsService;
+        private readonly ProjectListControl projectListControl;
 
-        ServerListControl serverListControl;
-        ProjectListControl projectListControl;
-        BarStaticItem statusTextItem;
-        BarEditItem statusProgressItem;
+        private readonly ServerListControl serverListControl;
+        private readonly BarEditItem statusProgressItem;
+        private readonly BarStaticItem statusTextItem;
 
         public ServersSettingsController(ServerListControl serverListControl,
-            ProjectListControl projectListControl,
-            BarStaticItem statusTextItem, 
-            BarEditItem statusProgressItem)
+                                         ProjectListControl projectListControl,
+                                         BarStaticItem statusTextItem,
+                                         BarEditItem statusProgressItem)
         {
             this.serverListControl = serverListControl;
             this.projectListControl = projectListControl;
             this.statusTextItem = statusTextItem;
             this.statusProgressItem = statusProgressItem;
 
-            configurationService = (ConfigurationService)ContextRegistry.GetContext().GetObject("ConfigurationService");
-            jenkinsService = (JenkinsService)ContextRegistry.GetContext().GetObject("JenkinsService");
+            configurationService = (ConfigurationService) ContextRegistry.GetContext().GetObject("ConfigurationService");
+            jenkinsService = (JenkinsService) ContextRegistry.GetContext().GetObject("JenkinsService");
             serverListControl.ConfigurationService = configurationService;
             projectListControl.ConfigurationService = configurationService;
             projectListControl.JenkinsService = jenkinsService;

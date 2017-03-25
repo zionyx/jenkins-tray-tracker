@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
 
 namespace JenkinsTray.Entities
@@ -13,7 +10,7 @@ namespace JenkinsTray.Entities
         Successful,
         Indeterminate,
         Unstable,
-        Failed,
+        Failed
     }
 
     [DebuggerDisplay("Status={Value}, InProgress={IsInProgress}, Stuck={IsStuck}")]
@@ -21,26 +18,39 @@ namespace JenkinsTray.Entities
     {
         public static readonly BuildStatus UNKNOWN_BUILD_STATUS = new BuildStatus(BuildStatusEnum.Unknown, false, false);
 
-        public readonly BuildStatusEnum Value;
-        public readonly bool IsInProgress;
-        public readonly bool IsStuck;
-
         private static readonly string SUCCESS = "success";
         private static readonly string FAILURE = "failure";
         private static readonly string UNSTABLE = "unstable";
         private static readonly string ABORTED = "aborted";
+        public readonly bool IsInProgress;
+        public readonly bool IsStuck;
+
+        public readonly BuildStatusEnum Value;
 
         public BuildStatus(BuildStatusEnum value, bool isInProgress, bool isStuck)
         {
-            this.Value = value;
-            this.IsInProgress = isInProgress;
-            this.IsStuck = isStuck;
+            Value = value;
+            IsInProgress = isInProgress;
+            IsStuck = isStuck;
+        }
+
+        public string Key
+        {
+            get
+            {
+                var res = Value.ToString();
+                if (IsInProgress)
+                    res += "_BuildInProgress";
+                if (IsStuck)
+                    res += "_Stuck";
+                return res;
+            }
         }
 
         //  http://javadoc.jenkins-ci.org/hudson/model/Result.html
         public static BuildStatusEnum StringToBuildStatus(string result)
         {
-            BuildStatusEnum status = BuildStatusEnum.Unknown;
+            var status = BuildStatusEnum.Unknown;
 
             result = result.ToLower();
             if (result == SUCCESS)
@@ -62,24 +72,11 @@ namespace JenkinsTray.Entities
             return status;
         }
 
-        public string Key
-        {
-            get
-            {
-                string res = Value.ToString();
-                if (IsInProgress)
-                    res += "_BuildInProgress";
-                if (IsStuck)
-                    res += "_Stuck";
-                return res;
-            }
-        }
-
         public override string ToString()
         {
             string toString = null;
 
-            switch (this.Value)
+            switch (Value)
             {
                 case BuildStatusEnum.Successful:
                     toString = SUCCESS;
@@ -105,7 +102,7 @@ namespace JenkinsTray.Entities
     {
         public static bool IsWorse(BuildStatus status, BuildStatus thanStatus)
         {
-            bool res = status.Value > thanStatus.Value;
+            var res = status.Value > thanStatus.Value;
             return res;
         }
 
@@ -118,6 +115,7 @@ namespace JenkinsTray.Entities
         {
             return IsErrorBuild(status.Value);
         }
+
         public static bool IsErrorBuild(BuildStatusEnum status)
         {
             return status == BuildStatusEnum.Failed;

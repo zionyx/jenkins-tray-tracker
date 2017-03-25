@@ -1,36 +1,42 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <objects xmlns="http://www.springframework.net">
 
-  <object id="NotificationSettings" type="JenkinsTray.Entities.NotificationSettings"/>
-  <object id="GeneralSettings" type="JenkinsTray.Entities.GeneralSettings"/>
+  <object id="NotificationSettings" type="JenkinsTray.Entities.NotificationSettings" />
+  <object id="GeneralSettings" type="JenkinsTray.Entities.GeneralSettings" />
 
-  <object id="ConfigurationService" type="JenkinsTray.BusinessComponents.ConfigurationService" autowire="byType" init-method="Initialize"/>
-  <object id="JenkinsService" type="JenkinsTray.BusinessComponents.JenkinsService" autowire="byType"/>
-  <object id="ProjectsUpdateService" type="JenkinsTray.BusinessComponents.ProjectsUpdateService" autowire="byType" init-method="Initialize"/>
-  <object id="ApplicationUpdateService" type="JenkinsTray.BusinessComponents.ApplicationUpdateService" autowire="byType" init-method="Initialize"/>
-  <object id="NotificationService" type="JenkinsTray.BusinessComponents.NotificationService" autowire="byType" init-method="Initialize"/>
-  <object id="ClaimService" type="JenkinsTray.BusinessComponents.ClaimService" autowire="byType"/>
+  <object id="ConfigurationService" type="JenkinsTray.BusinessComponents.ConfigurationService" autowire="byType"
+          init-method="Initialize" />
+  <object id="JenkinsService" type="JenkinsTray.BusinessComponents.JenkinsService" autowire="byType" />
+  <object id="ProjectsUpdateService" type="JenkinsTray.BusinessComponents.ProjectsUpdateService" autowire="byType"
+          init-method="Initialize" />
+  <object id="ApplicationUpdateService" type="JenkinsTray.BusinessComponents.ApplicationUpdateService"
+          autowire="byType" init-method="Initialize" />
+  <object id="NotificationService" type="JenkinsTray.BusinessComponents.NotificationService" autowire="byType"
+          init-method="Initialize" />
+  <object id="ClaimService" type="JenkinsTray.BusinessComponents.ClaimService" autowire="byType" />
 
-  <object id="ApplicationUpdateHandler" type="JenkinsTray.Utils.ApplicationUpdateHandler" autowire="byType" init-method="Initialize"/>
+  <object id="ApplicationUpdateHandler" type="JenkinsTray.Utils.ApplicationUpdateHandler" autowire="byType"
+          init-method="Initialize" />
 
   <object id="MainForm" type="JenkinsTray.UI.MainForm">
-    <property name="ConfigurationService" ref="ConfigurationService"/>
-    <property name="JenkinsService" ref="JenkinsService"/>
-    <property name="ProjectsUpdateService" ref="ProjectsUpdateService"/>
-    <property name="ApplicationUpdateService" ref="ApplicationUpdateService"/>
+    <property name="ConfigurationService" ref="ConfigurationService" />
+    <property name="JenkinsService" ref="JenkinsService" />
+    <property name="ProjectsUpdateService" ref="ProjectsUpdateService" />
+    <property name="ApplicationUpdateService" ref="ApplicationUpdateService" />
   </object>
-  <object id="AboutForm" type="JenkinsTray.UI.AboutForm"/>
-  <object id="AuthenticationTokenForm" type="JenkinsTray.UI.AuthenticationTokenForm"/>
+  <object id="AboutForm" type="JenkinsTray.UI.AboutForm" />
+  <object id="AuthenticationTokenForm" type="JenkinsTray.UI.AuthenticationTokenForm" />
   <object id="SettingsForm" type="JenkinsTray.UI.SettingsForm">
-    <property name="ConfigurationService" ref="ConfigurationService"/>
-    <property name="JenkinsService" ref="JenkinsService"/>
+    <property name="ConfigurationService" ref="ConfigurationService" />
+    <property name="JenkinsService" ref="JenkinsService" />
   </object>
   <object id="TrayNotifier" type="JenkinsTray.UI.TrayNotifier" init-method="Initialize">
-    <property name="ConfigurationService" ref="ConfigurationService"/>
-    <property name="JenkinsService" ref="JenkinsService"/>
-    <property name="UpdateService" ref="ProjectsUpdateService"/>
-    <property name="NotificationService" ref="NotificationService"/>
-    <property name="ConfigurationService" ref="ConfigurationService"/>
+    <property name="ConfigurationService" ref="ConfigurationService" />
+    <property name="JenkinsService" ref="JenkinsService" />
+    <property name="UpdateService" ref="ProjectsUpdateService" />
+    <property name="NotificationService" ref="NotificationService" />
+    <property name="ConfigurationService" ref="ConfigurationService" />
   </object>
 
 

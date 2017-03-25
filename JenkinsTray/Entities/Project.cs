@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace JenkinsTray.Entities
@@ -8,18 +6,19 @@ namespace JenkinsTray.Entities
     [JsonObject(MemberSerialization.OptIn)]
     public class Project : IComparable<Project>
     {
-        public class QueueItem
+        public Project()
         {
-            public bool InQueue { get; set; }
-            public long Id { get; set; }
-            public DateTime InQueueSince { get; set; }
-            public string Why { get; set; }
+            Queue = new QueueItem();
+            Activity = new ProjectActivity(this);
         }
 
         public Server Server { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("displayName")]
+        public string DisplayName { get; set; }
 
         [JsonProperty("url")]
         public string Url { get; set; }
@@ -37,18 +36,12 @@ namespace JenkinsTray.Entities
         public ProjectActivity Activity { get; set; }
         public QueueItem Queue { get; set; }
 
-        public Project()
-        {
-            Queue = new QueueItem();
-            Activity = new ProjectActivity(this);
-        }
-
         public BuildStatus Status
         {
             get
             {
                 // get a copy of the reference to avoid a race condition
-                AllBuildDetails details = this.AllBuildDetails;
+                var details = AllBuildDetails;
                 if (details == null)
                     return BuildStatus.UNKNOWN_BUILD_STATUS;
                 return details.Status;
@@ -64,15 +57,15 @@ namespace JenkinsTray.Entities
         {
             set
             {
-                if (this.AllBuildDetails != null)
+                if (AllBuildDetails != null)
                 {
-                    this.AllBuildDetails.PreviousStatus = value;
+                    AllBuildDetails.PreviousStatus = value;
                 }
             }
             get
             {
                 // get a copy of the reference to avoid a race condition
-                AllBuildDetails details = this.AllBuildDetails;
+                var details = AllBuildDetails;
                 if (details == null)
                     return BuildStatus.UNKNOWN_BUILD_STATUS;
                 return details.PreviousStatus;
@@ -89,7 +82,7 @@ namespace JenkinsTray.Entities
             get
             {
                 // get a copy of the reference to avoid a race condition
-                AllBuildDetails details = this.AllBuildDetails;
+                var details = AllBuildDetails;
                 if (details == null)
                     return null;
                 return details.LastBuild;
@@ -101,7 +94,7 @@ namespace JenkinsTray.Entities
             get
             {
                 // get a copy of the reference to avoid a race condition
-                AllBuildDetails details = this.AllBuildDetails;
+                var details = AllBuildDetails;
                 if (details == null)
                     return null;
                 return details.LastSuccessfulBuild;
@@ -113,11 +106,16 @@ namespace JenkinsTray.Entities
             get
             {
                 // get a copy of the reference to avoid a race condition
-                AllBuildDetails details = this.AllBuildDetails;
+                var details = AllBuildDetails;
                 if (details == null)
                     return null;
                 return details.LastFailedBuild;
             }
+        }
+
+        public int CompareTo(Project other)
+        {
+            return Name.CompareTo(other.Name);
         }
 
         public override int GetHashCode()
@@ -127,11 +125,11 @@ namespace JenkinsTray.Entities
 
         public override bool Equals(object obj)
         {
-            Project other = obj as Project;
+            var other = obj as Project;
             if (other == null)
                 return false;
             return other.Server.Equals(Server)
-                && other.Name == Name;
+                   && other.Name == Name;
         }
 
         public override string ToString()
@@ -139,9 +137,12 @@ namespace JenkinsTray.Entities
             return Name;
         }
 
-        public int CompareTo(Project other)
+        public class QueueItem
         {
-            return Name.CompareTo(other.Name);
+            public bool InQueue { get; set; }
+            public long Id { get; set; }
+            public DateTime InQueueSince { get; set; }
+            public string Why { get; set; }
         }
     }
 }

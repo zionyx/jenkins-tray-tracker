@@ -1,11 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <log4net>
   <root>
     <level value="INFO" />
     <appender-ref ref="GeneralLog" />
   </root>
   <logger name="JenkinsTray.BusinessComponents">
-    <level value="INFO"/>
+    <level value="INFO" />
   </logger>
   <appender name="GeneralLog" type="log4net.Appender.RollingFileAppender">
     <file value="${APPDATA}/Jenkins Tray/Logs/general.txt" />
@@ -14,7 +15,7 @@
     <rollingStyle value="Size" />
     <maxSizeRollBackups value="5" />
     <layout type="log4net.Layout.PatternLayout">
-      <conversionPattern value="%date [%t] %-5p %c - %m%n"  />
+      <conversionPattern value="%date [%t] %-5p %c - %m%n" />
     </layout>
   </appender>
 </log4net>

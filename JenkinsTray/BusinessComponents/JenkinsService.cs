@@ -1,61 +1,59 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net;
+using System.Net.Security;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading;
 using System.Web;
 using System.Xml;
+using Common.Logging;
 using JenkinsTray.Entities;
 using JenkinsTray.Utils;
-using Common.Logging;
-using System.Reflection;
 using JenkinsTray.Utils.Logging;
-using Iesi.Collections.Generic;
 using JenkinsTray.Utils.Web;
-using System.Threading;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
+using Spring.Collections.Generic;
 
 namespace JenkinsTray.BusinessComponents
 {
     public class JenkinsService
     {
-        static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        [ThreadStatic]
-        static WebClient threadWebClient;
+        [ThreadStatic] private static WebClient threadWebClient;
 
-        [ThreadStatic]
-        static bool ignoreUntrustedCertificate;
+        [ThreadStatic] private static bool ignoreUntrustedCertificate;
 
         // cache: key=url, value=xml
-        IDictionary<string, string> cache = new Dictionary<string, string>();
+        private IDictionary<string, string> cache = new Dictionary<string, string>();
         // URLs visited between 2 calls to RecycleCache()
-        ISet<string> visitedURLs = new HashedSet<string>();
-
-        public ClaimService ClaimService { get; set; }
+        private readonly Spring.Collections.Generic.ISet<string> visitedURLs = new HashedSet<string>();
 
         public JenkinsService()
         {
             ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
         }
 
+        public ClaimService ClaimService { get; set; }
+
         public IList<Project> LoadProjects(Server server)
         {
-            String url = NetUtils.ConcatUrls(server.Url, "/api/xml?tree=jobs[name,url,color]");
+            var url = NetUtils.ConcatUrls(server.Url, "/api/xml?tree=jobs[name,url,color]");
 
             logger.Info("Loading projects from " + url);
 
-            String xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
+            var xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
 
             if (logger.IsTraceEnabled)
                 logger.Trace("XML: " + xmlStr);
 
-            XmlDocument xml = new XmlDocument();
+            var xml = new XmlDocument();
             xml.LoadXml(xmlStr);
 
-            XmlNodeList jobElements = xml.SelectNodes("/hudson/job");
+            var jobElements = xml.SelectNodes("/hudson/job");
             var projects = GetProjects(jobElements, server);
-            
+
             logger.Info("Done loading projects");
 
             return projects;
@@ -67,22 +65,22 @@ namespace JenkinsTray.BusinessComponents
 
             foreach (XmlNode jobElement in jobElements)
             {
-                string projectName = jobElement.SelectSingleNode("name").InnerText;
-                string projectUrl = jobElement.SelectSingleNode("url").InnerText;
-                XmlNode projectColor = jobElement.SelectSingleNode("color");
+                var projectName = jobElement.SelectSingleNode("name").InnerText;
+                var projectUrl = jobElement.SelectSingleNode("url").InnerText;
+                var projectColor = jobElement.SelectSingleNode("color");
                 // If the job is a folder we need to recursively get the jobs within.
                 if (jobElement.SelectSingleNode("color") == null)
                 {
-                    String url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
-                    String xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
-                    XmlDocument xml = new XmlDocument();
+                    var url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
+                    var xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
+                    var xml = new XmlDocument();
                     xml.LoadXml(xmlStr);
-                    XmlNodeList nodes = xml.SelectNodes("/folder/job");
+                    var nodes = xml.SelectNodes("/folder/job");
                     projects.AddRange(GetProjects(nodes, server));
                 }
                 else
                 {
-                    Project project = new Project();
+                    var project = new Project();
                     project.Server = server;
                     project.Name = projectName;
                     project.Url = projectUrl;
@@ -102,49 +100,51 @@ namespace JenkinsTray.BusinessComponents
 
         public AllBuildDetails UpdateProject(Project project)
         {
-            String url = NetUtils.ConcatUrls(project.Url, "/api/xml");
+            var url = NetUtils.ConcatUrls(project.Url, "/api/xml");
 
             //logger.Info("Updating project from " + url);
 
-            Credentials credentials = project.Server.Credentials;
-            bool ignoreUntrustedCertificate = project.Server.IgnoreUntrustedCertificate;
-            String xmlStr = DownloadString(credentials, url, false, ignoreUntrustedCertificate);
+            var credentials = project.Server.Credentials;
+            var ignoreUntrustedCertificate = project.Server.IgnoreUntrustedCertificate;
+            var xmlStr = DownloadString(credentials, url, false, ignoreUntrustedCertificate);
 
             if (logger.IsTraceEnabled)
                 logger.Trace("XML: " + xmlStr);
 
-            XmlDocument xml = new XmlDocument();
+            var xml = new XmlDocument();
             xml.LoadXml(xmlStr);
 
-            bool? inQueue = XmlUtils.SelectSingleNodeBoolean(xml, "/*/inQueue");
-            string inQueueSince = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/inQueueSince");
-            string queueId = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/id");
-            string why = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/why");
-            bool? stuck = XmlUtils.SelectSingleNodeBoolean(xml, "/*/queueItem/stuck");
-            string status = xml.SelectSingleNode("/*/color").InnerText;
-            string lastBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastBuild/url");
-            string lastCompletedBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastCompletedBuild/url");
-            string lastSuccessfulBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastSuccessfulBuild/url");
-            string lastFailedBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastFailedBuild/url");
+            var displayName = XmlUtils.SelectSingleNodeText(xml, "/*/displayName");
+            var inQueue = XmlUtils.SelectSingleNodeBoolean(xml, "/*/inQueue");
+            var inQueueSince = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/inQueueSince");
+            var queueId = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/id");
+            var why = XmlUtils.SelectSingleNodeText(xml, "/*/queueItem/why");
+            var stuck = XmlUtils.SelectSingleNodeBoolean(xml, "/*/queueItem/stuck");
+            var status = xml.SelectSingleNode("/*/color").InnerText;
+            var lastBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastBuild/url");
+            var lastCompletedBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastCompletedBuild/url");
+            var lastSuccessfulBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastSuccessfulBuild/url");
+            var lastFailedBuildUrl = XmlUtils.SelectSingleNodeText(xml, "/*/lastFailedBuild/url");
 
-            project.Queue.InQueue = (inQueue.HasValue && inQueue.Value == true);
-            if (!String.IsNullOrEmpty(queueId))
+            project.DisplayName = displayName;
+            project.Queue.InQueue = inQueue.HasValue && inQueue.Value;
+            if (!string.IsNullOrEmpty(queueId))
             {
                 project.Queue.Id = long.Parse(queueId);
             }
-            if (!String.IsNullOrEmpty(inQueueSince))
+            if (!string.IsNullOrEmpty(inQueueSince))
             {
-                TimeSpan ts = TimeSpan.FromSeconds(long.Parse(inQueueSince) / 1000);
-                DateTime date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var ts = TimeSpan.FromSeconds(long.Parse(inQueueSince)/1000);
+                var date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 date = date.Add(ts);
                 project.Queue.InQueueSince = date;
             }
-            if (!String.IsNullOrEmpty(why))
+            if (!string.IsNullOrEmpty(why))
             {
                 project.Queue.Why = why;
             }
 
-            AllBuildDetails res = new AllBuildDetails();
+            var res = new AllBuildDetails();
             res.Status = GetStatus(status, stuck);
             res.LastBuild = GetBuildDetails(credentials, lastBuildUrl, ignoreUntrustedCertificate);
             res.LastCompletedBuild = GetBuildDetails(credentials, lastCompletedBuildUrl, ignoreUntrustedCertificate);
@@ -174,8 +174,8 @@ namespace JenkinsTray.BusinessComponents
             else
                 value = BuildStatusEnum.Unknown;
 
-            bool isInProgress = status.EndsWith("_anime");
-            bool isStuck = (stuck.HasValue && stuck.Value == true);
+            var isInProgress = status.EndsWith("_anime");
+            var isStuck = stuck.HasValue && stuck.Value;
             return new BuildStatus(value, isInProgress, isStuck);
         }
 
@@ -184,42 +184,42 @@ namespace JenkinsTray.BusinessComponents
             if (buildUrl == null)
                 return null;
 
-            String url = NetUtils.ConcatUrls(buildUrl, "/api/xml");
+            var url = NetUtils.ConcatUrls(buildUrl, "/api/xml");
 
             if (logger.IsDebugEnabled)
                 logger.Debug("Getting build details from " + url);
 
-            String xmlStr = DownloadString(credentials, url, true, ignoreUntrustedCertificate);
+            var xmlStr = DownloadString(credentials, url, true, ignoreUntrustedCertificate);
 
             if (logger.IsTraceEnabled)
                 logger.Trace("XML: " + xmlStr);
 
-            XmlDocument xml = new XmlDocument();
+            var xml = new XmlDocument();
             xml.LoadXml(xmlStr);
 
-            string number = xml.SelectSingleNode("/*/number").InnerText;
-            string fullDisplayName = xml.SelectSingleNode("/*/fullDisplayName").InnerText;
-            string timestamp = xml.SelectSingleNode("/*/timestamp").InnerText;
-            string estimatedDuration = xml.SelectSingleNode("/*/estimatedDuration").InnerText;
-            string duration = xml.SelectSingleNode("/*/duration").InnerText;
-            XmlNode xmlResult = xml.SelectSingleNode("/*/result");
-            string result = xmlResult == null ? string.Empty : xmlResult.InnerText;
-            XmlNodeList userNodes = xml.SelectNodes("/*/culprit/fullName");
+            var number = xml.SelectSingleNode("/*/number").InnerText;
+            var fullDisplayName = xml.SelectSingleNode("/*/fullDisplayName").InnerText;
+            var timestamp = xml.SelectSingleNode("/*/timestamp").InnerText;
+            var estimatedDuration = xml.SelectSingleNode("/*/estimatedDuration").InnerText;
+            var duration = xml.SelectSingleNode("/*/duration").InnerText;
+            var xmlResult = xml.SelectSingleNode("/*/result");
+            var result = xmlResult == null ? string.Empty : xmlResult.InnerText;
+            var userNodes = xml.SelectNodes("/*/culprit/fullName");
 
-            TimeSpan ts = TimeSpan.FromSeconds(long.Parse(timestamp) / 1000);
-            DateTime date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var ts = TimeSpan.FromSeconds(long.Parse(timestamp)/1000);
+            var date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             date = date.Add(ts);
-            TimeSpan estimatedts = TimeSpan.FromSeconds(long.Parse(estimatedDuration) / 1000);
-            TimeSpan durationts = TimeSpan.FromSeconds(long.Parse(estimatedDuration) / 1000);
+            var estimatedts = TimeSpan.FromSeconds(long.Parse(estimatedDuration)/1000);
+            var durationts = TimeSpan.FromSeconds(long.Parse(estimatedDuration)/1000);
 
-            ISet<string> users = new HashedSet<string>();
+            Spring.Collections.Generic.ISet<string> users = new HashedSet<string>();
             foreach (XmlNode userNode in userNodes)
             {
-                string userName = StringUtils.ExtractUserName(userNode.InnerText);
+                var userName = StringUtils.ExtractUserName(userNode.InnerText);
                 users.Add(userName);
             }
 
-            BuildDetails res = new BuildDetails();
+            var res = new BuildDetails();
             BuildCauses.FillInBuildCauses(res, xml);
             res.Number = int.Parse(number);
             res.DisplayName = fullDisplayName;
@@ -252,20 +252,22 @@ namespace JenkinsTray.BusinessComponents
 
         public void RunBuild(Project project)
         {
-            String url = NetUtils.ConcatUrls(project.Url, "/build?delay=0sec");
+            var url = NetUtils.ConcatUrls(project.Url, "/build?delay=0sec");
 
             if (!string.IsNullOrEmpty(project.AuthenticationToken))
             {
-                url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&token=", HttpUtility.UrlEncodeUnicode(project.AuthenticationToken));
+                url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&token=",
+                                                              HttpUtility.UrlEncode(project.AuthenticationToken));
                 if (!string.IsNullOrEmpty(project.CauseText))
                 {
-                    url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&cause=", HttpUtility.UrlEncodeUnicode(project.CauseText));
+                    url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&cause=",
+                                                                  HttpUtility.UrlEncode(project.CauseText));
                 }
             }
             logger.Info("Running build at " + url);
 
-            Credentials credentials = project.Server.Credentials;
-            String str = UploadString(credentials, url, project.Server.IgnoreUntrustedCertificate);
+            var credentials = project.Server.Credentials;
+            var str = UploadString(credentials, url, project.Server.IgnoreUntrustedCertificate);
 
             if (logger.IsTraceEnabled)
                 logger.Trace("Result: " + str);
@@ -288,20 +290,22 @@ namespace JenkinsTray.BusinessComponents
 
         public void StopBuild(Project project)
         {
-            String url = NetUtils.ConcatUrls(project.Url, "/lastBuild/stop");
+            var url = NetUtils.ConcatUrls(project.Url, "/lastBuild/stop");
 
             if (!string.IsNullOrEmpty(project.AuthenticationToken))
             {
-                url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&token=", HttpUtility.UrlEncodeUnicode(project.AuthenticationToken));
+                url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&token=",
+                                                              HttpUtility.UrlEncode(project.AuthenticationToken));
                 if (!string.IsNullOrEmpty(project.CauseText))
                 {
-                    url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&cause=", HttpUtility.UrlEncodeUnicode(project.CauseText));
+                    url = NetUtils.ConcatUrlsWithoutTrailingSlash(url, "&cause=",
+                                                                  HttpUtility.UrlEncode(project.CauseText));
                 }
             }
             logger.Info("Stopping build at " + url);
 
-            Credentials credentials = project.Server.Credentials;
-            String str = UploadString(credentials, url, project.Server.IgnoreUntrustedCertificate);
+            var credentials = project.Server.Credentials;
+            var str = UploadString(credentials, url, project.Server.IgnoreUntrustedCertificate);
 
             if (logger.IsTraceEnabled)
                 logger.Trace("Result: " + str);
@@ -324,15 +328,15 @@ namespace JenkinsTray.BusinessComponents
 
         public void RemoveFromQueue(Server server, long queueId)
         {
-            String url = NetUtils.ConcatUrls(server.Url, "/queue/cancelItem?id=" + queueId);
+            var url = NetUtils.ConcatUrls(server.Url, "/queue/cancelItem?id=" + queueId);
 
             logger.Info("Removing queue item at " + url);
 
-            Credentials credentials = server.Credentials;
+            var credentials = server.Credentials;
 
             try
             {
-                String str = UploadString(credentials, url, server.IgnoreUntrustedCertificate);
+                var str = UploadString(credentials, url, server.IgnoreUntrustedCertificate);
 
                 if (logger.IsTraceEnabled)
                     logger.Trace("Result: " + str);
@@ -340,7 +344,8 @@ namespace JenkinsTray.BusinessComponents
             catch (WebException webEx)
             {
                 //  Workaround for JENKINS-21311
-                if (webEx.Status == WebExceptionStatus.ProtocolError && ((HttpWebResponse)webEx.Response).StatusCode == HttpStatusCode.NotFound)
+                if (webEx.Status == WebExceptionStatus.ProtocolError &&
+                    ((HttpWebResponse) webEx.Response).StatusCode == HttpStatusCode.NotFound)
                 {
                     //  consume error 404
                 }
@@ -350,8 +355,8 @@ namespace JenkinsTray.BusinessComponents
             logger.Info("Done removing queue item");
         }
 
-        private String DownloadString(Credentials credentials, string url, bool cacheable,
-            bool ignoreUntrustedCertificate)
+        private string DownloadString(Credentials credentials, string url, bool cacheable,
+                                      bool ignoreUntrustedCertificate)
         {
             string res;
 
@@ -380,7 +385,7 @@ namespace JenkinsTray.BusinessComponents
             // set the thread-static field
             JenkinsService.ignoreUntrustedCertificate = ignoreUntrustedCertificate;
 
-            WebClient webClient = GetWebClient(credentials);
+            var webClient = GetWebClient(credentials);
             res = webClient.DownloadString(url);
 
             if (logger.IsTraceEnabled)
@@ -398,7 +403,7 @@ namespace JenkinsTray.BusinessComponents
             return res;
         }
 
-        private String UploadString(Credentials credentials, string url, bool ignoreUntrustedCertificate)
+        private string UploadString(Credentials credentials, string url, bool ignoreUntrustedCertificate)
         {
             string res;
 
@@ -408,9 +413,9 @@ namespace JenkinsTray.BusinessComponents
             // set the thread-static field
             JenkinsService.ignoreUntrustedCertificate = ignoreUntrustedCertificate;
 
-            WebClient webClient = GetWebClient(credentials);
+            var webClient = GetWebClient(credentials);
             webClient.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-              res = webClient.UploadString(url,"");
+            res = webClient.UploadString(url, "");
 
             if (logger.IsTraceEnabled)
                 logger.Trace("Uploaded: " + res);
@@ -423,7 +428,7 @@ namespace JenkinsTray.BusinessComponents
             if (threadWebClient == null)
             {
                 logger.Info("Creating web client in thread " + Thread.CurrentThread.ManagedThreadId
-                    + " (" + Thread.CurrentThread.Name + ")");
+                            + " (" + Thread.CurrentThread.Name + ")");
                 threadWebClient = new CookieAwareWebClient();
                 threadWebClient.Encoding = Encoding.UTF8;
             }
@@ -434,7 +439,7 @@ namespace JenkinsTray.BusinessComponents
             // credentials
             if (credentials != null)
             {
-                string authentication = "Basic " + Convert.ToBase64String(
+                var authentication = "Basic " + Convert.ToBase64String(
                     Encoding.ASCII.GetBytes(credentials.Username + ":" + credentials.Password));
                 threadWebClient.Headers.Add("Authorization", authentication);
             }
@@ -451,7 +456,7 @@ namespace JenkinsTray.BusinessComponents
 
                 var newCache = new Dictionary<string, string>();
 
-                foreach (string visitedURL in visitedURLs)
+                foreach (var visitedURL in visitedURLs)
                 {
                     string value;
                     if (cache.TryGetValue(visitedURL, out value))
@@ -476,8 +481,8 @@ namespace JenkinsTray.BusinessComponents
 
         public string GetConsolePage(Project project)
         {
-            string res = project.Url;
-            bool hasBuild = HasBuild(project.AllBuildDetails);
+            var res = project.Url;
+            var hasBuild = HasBuild(project.AllBuildDetails);
             if (hasBuild)
                 res += "lastBuild/console";
             return res;
@@ -492,14 +497,14 @@ namespace JenkinsTray.BusinessComponents
             if (allBuildDetails.LastCompletedBuild != null)
                 return true;
             // if there is a build in progress, there is a build
-            bool buildInProgress = allBuildDetails.Status.IsInProgress;
+            var buildInProgress = allBuildDetails.Status.IsInProgress;
             return buildInProgress;
         }
 
         private bool ValidateServerCertificate(object sender, X509Certificate certificate,
-            X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                                               X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            if (ignoreUntrustedCertificate == true)
+            if (ignoreUntrustedCertificate)
                 return true;
             return sslPolicyErrors == SslPolicyErrors.None;
         }

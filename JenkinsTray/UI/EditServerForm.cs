@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
+using System.Globalization;
 using System.Windows.Forms;
-
 using DevExpress.XtraEditors;
 using JenkinsTray.Entities;
 
 namespace JenkinsTray.UI
 {
-    public partial class EditServerForm : DevExpress.XtraEditors.XtraForm
+    public partial class EditServerForm : XtraForm
     {
         public EditServerForm()
         {
@@ -82,14 +77,14 @@ namespace JenkinsTray.UI
         protected virtual bool IsUrlValid(string url)
         {
             url = url.Trim();
-            bool valid = String.IsNullOrEmpty(url) == false && url != "http://" && url != "https://";
+            var valid = string.IsNullOrEmpty(url) == false && url != "http://" && url != "https://";
             return valid;
         }
 
         private void ValidateForm()
         {
-            string url = urlTextBox.Text;
-            bool nameValid = IsUrlValid(url);
+            var url = urlTextBox.Text;
+            var nameValid = IsUrlValid(url);
 
             validateButton.Enabled = nameValid;
         }
@@ -98,22 +93,22 @@ namespace JenkinsTray.UI
         {
             usernameLabel.Enabled
                 = usernameTextBox.Enabled
-                = passwordLabel.Enabled
-                = passwordTextBox.Enabled
-                = RequiresAuthentication;
+                    = passwordLabel.Enabled
+                        = passwordTextBox.Enabled
+                            = RequiresAuthentication;
         }
 
         private void urlTextBox_Leave(object sender, EventArgs e)
         {
-            string url = ServerAddress.Trim();
-            if (String.IsNullOrEmpty(url) == false
+            var url = ServerAddress.Trim();
+            if (string.IsNullOrEmpty(url) == false
                 && url.StartsWith("http://") == false
                 && url.StartsWith("https://") == false)
             {
                 ServerAddress = "http://" + url;
             }
             //  Prevents malformed URL
-            if (!ServerAddress.EndsWith("/", true, System.Globalization.CultureInfo.CurrentCulture))
+            if (!ServerAddress.EndsWith("/", true, CultureInfo.CurrentCulture))
                 ServerAddress += "/";
         }
 

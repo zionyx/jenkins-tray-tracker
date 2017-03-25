@@ -1,15 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Iesi.Collections.Generic;
-using Newtonsoft.Json;
 using JenkinsTray.Utils.Serialization;
+using Newtonsoft.Json;
+using Spring.Collections.Generic;
 
 namespace JenkinsTray.Entities
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class Server
     {
+        public Server()
+        {
+            Projects = new HashedSet<Project>();
+        }
+
         [JsonProperty("url")]
         public string Url { get; set; }
 
@@ -28,12 +30,7 @@ namespace JenkinsTray.Entities
 
         public string DisplayText
         {
-            get { return String.IsNullOrEmpty(DisplayName) ? Url : DisplayName; }
-        }
-
-        public Server()
-        {
-            Projects = new HashedSet<Project>();
+            get { return string.IsNullOrEmpty(DisplayName) ? Url : DisplayName; }
         }
 
         public override int GetHashCode()
@@ -43,7 +40,7 @@ namespace JenkinsTray.Entities
 
         public override bool Equals(object obj)
         {
-            Server other = obj as Server;
+            var other = obj as Server;
             if (other == null)
                 return false;
             return other.Url == Url;

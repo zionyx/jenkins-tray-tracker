@@ -1,14 +1,16 @@
 using System.Collections.Generic;
 using JenkinsTray.Entities;
-using JenkinsTray.Utils;
 using JenkinsTray.Utils.Collections;
 
 namespace JenkinsTray.BusinessComponents
 {
     public class AllServersStatus
     {
-        private ThreadSafeDictionary<string, BuildStatus> lastStatuses = new ThreadSafeDictionary<string, BuildStatus>();
-        private ThreadSafeDictionary<string, BuildStatus> lastCompletedStatuses = new ThreadSafeDictionary<string, BuildStatus>();
+        private readonly ThreadSafeDictionary<string, BuildStatus> lastCompletedStatuses =
+            new ThreadSafeDictionary<string, BuildStatus>();
+
+        private readonly ThreadSafeDictionary<string, BuildStatus> lastStatuses =
+            new ThreadSafeDictionary<string, BuildStatus>();
 
         public IEnumerable<Server> Servers { get; private set; }
 
@@ -78,7 +80,7 @@ namespace JenkinsTray.BusinessComponents
         private bool TreatAsFailure(BuildStatus status)
         {
             return status.Value == BuildStatusEnum.Failed
-                || status.Value == BuildStatusEnum.Unstable;
+                   || status.Value == BuildStatusEnum.Unstable;
         }
     }
 }
