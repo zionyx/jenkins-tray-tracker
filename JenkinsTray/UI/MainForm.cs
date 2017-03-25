@@ -886,8 +886,28 @@ namespace JenkinsTray.UI
             {
                 if (details == null)
                     return "-";
+                
+                DateTime buildDateTime = details.Time.ToLocalTime();
+                string buildDateStr = "";
+
+                if (buildDateTime.Date == DateTime.Today.Date)
+                {
+                    buildDateStr = JenkinsTrayResources.Today_Text;
+                }
+                else if (buildDateTime.Date == DateTime.Today.Date.AddDays(-1))
+                {
+                    buildDateStr = JenkinsTrayResources.Yesterday_Text;
+                }
+                else
+                {
+                    buildDateStr = buildDateTime.Date.ToString("d");   
+                }
+
+                var buildTimeStr = buildDateTime.ToString("t");
+
                 var res = string.Format(JenkinsTrayResources.BuildDetails_Format_NumberDate,
-                                        details.Number, details.Time.ToLocalTime());
+                                        buildDateStr, buildTimeStr, details.Number);
+
                 return res;
             }
 

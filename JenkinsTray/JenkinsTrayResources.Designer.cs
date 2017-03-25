@@ -252,7 +252,7 @@ namespace JenkinsTray {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} ({1}).
+        ///   Looks up a localized string similar to {0} {1} (#{2}).
         /// </summary>
         internal static string BuildDetails_Format_NumberDate {
             get {
@@ -677,6 +677,15 @@ namespace JenkinsTray {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Today.
+        /// </summary>
+        internal static string Today_Text {
+            get {
+                return ResourceManager.GetString("Today_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All builds are good..
         /// </summary>
         internal static string Tooltip_AllGood {
@@ -727,6 +736,15 @@ namespace JenkinsTray {
         internal static string Version_Format {
             get {
                 return ResourceManager.GetString("Version_Format", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yesterday.
+        /// </summary>
+        internal static string Yesterday_Text {
+            get {
+                return ResourceManager.GetString("Yesterday_Text", resourceCulture);
             }
         }
     }

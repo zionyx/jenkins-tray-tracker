@@ -128,8 +128,14 @@ Do you want to download the update now (the application will close) ?</value>
   <data name="ApplicationUpdates_NoUpdate_Text" xml:space="preserve">
     <value>No update available.</value>
   </data>
+  <data name="Today_Text" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Yesterday_Text" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
   <data name="BuildDetails_Format_NumberDate" xml:space="preserve">
-    <value>{0} ({1})</value>
+    <value>{0} {1} (#{2})</value>
   </data>
   <data name="BuildDetails_Format_DisplayName_NumberDate" xml:space="preserve">
     <value>{0} - {1} ({2})</value>
