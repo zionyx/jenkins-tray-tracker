@@ -301,5 +301,14 @@ namespace JenkinsTray.BusinessComponents
                 SaveConfiguration();
             }
         }
+
+        public void SetShowFolders(bool value)
+        {
+            if (GeneralSettings.ShowFolders != value)
+            {
+                GeneralSettings.ShowFolders = value;
+                SaveConfiguration();
+            }
+        }
     }
 }

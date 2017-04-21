@@ -30,6 +30,9 @@ namespace JenkinsTray.Entities
         [JsonProperty("checkForUpdates")]
         public bool CheckForUpdates { get; set; }
 
+        [JsonProperty("showFolders")]
+        public bool ShowFolders { get; set; }
+        
         public ApplicationUpdateService ApplicationUpdateService { get; set; }
     }
 }

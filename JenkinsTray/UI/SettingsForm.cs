@@ -46,32 +46,45 @@ namespace JenkinsTray.UI
             refreshSpinEdit.Value = ConfigurationService.GeneralSettings.RefreshIntervalInSeconds;
             updateMainWindowIconCheckEdit.Checked = ConfigurationService.GeneralSettings.UpdateMainWindowIcon;
             integrateWithClaimPluginCheckEdit.Checked = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin;
-            showProjectDisplayNameCheckEdit.Checked = ConfigurationService.GeneralSettings.ShowProjectDisplayNameInMainUI;
-            checkForUpdatesCheckEdit.Checked = ConfigurationService.GeneralSettings.CheckForUpdates;
+
+            //TODO: Add a showFoldersCheckEdit control on the General tab of the Settings Form and swap the lines below
+            checkForUpdatesCheckEdit.Checked = ConfigurationService.GeneralSettings.ShowFolders;
+            //checkForUpdatesCheckEdit.Checked = ConfigurationService.GeneralSettings.CheckForUpdates;
+            //showFoldersCheckEdit.Checked = ConfigurationService.GeneralSettings.ShowFolders;
+
             notificationsSettingsControl.InitializeValues();
         }
 
         private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var refreshInterval = (int) refreshSpinEdit.Value;
+            var refreshInterval = (int)refreshSpinEdit.Value;
             ConfigurationService.SetRefreshIntervalInSeconds(refreshInterval);
             ConfigurationService.SetUpdateMainWindowIcon(updateMainWindowIconCheckEdit.Checked);
             ConfigurationService.SetIntegrateWithClaimPlugin(integrateWithClaimPluginCheckEdit.Checked);
-            ConfigurationService.SetShowProjectDisplayName(showProjectDisplayNameCheckEdit.Checked);
-            ConfigurationService.SetCheckForUpdates(checkForUpdatesCheckEdit.Checked);
             ConfigurationService.SetTreadUnstableAsFailed(notificationsSettingsControl.TreadUnstableAsFailed());
             ConfigurationService.SetSoundNotifications(notificationsSettingsControl.SoundNotificationsEnabled());
+
+            //TODO: Add a showFoldersCheckEdit control on the General tab of the Settings Form and swap the lines below
+            ConfigurationService.SetShowFolders(checkForUpdatesCheckEdit.Checked);
+            //ConfigurationService.SetShowFolders(showFoldersCheckEdit.Checked);
+            //ConfigurationService.SetCheckForUpdates(checkForUpdatesCheckEdit.Checked);
+
             notificationsSettingsControl.InvalidateData();
         }
 
         private void checkForUpdatesCheckEdit_CheckedChanged(object sender, EventArgs e)
         {
-            if (applicationUpdateService == null)
-            {
-                applicationUpdateService =
-                    (ApplicationUpdateService) ContextRegistry.GetContext().GetObject("ApplicationUpdateService");
-            }
-            applicationUpdateService.EnableTimer(checkForUpdatesCheckEdit.Checked);
+            //TODO: Uncomment this after the showFoldersCheckEdit is added
+            //if (applicationUpdateService == null)
+            //{
+            //    applicationUpdateService =
+            //        (ApplicationUpdateService) ContextRegistry.GetContext().GetObject("ApplicationUpdateService");
+            //}
+            //applicationUpdateService.EnableTimer(checkForUpdatesCheckEdit.Checked);
+
+            //TODO: Move this into its own event handler for showFoldersCheckEdit_CheckedChanged
+            ConfigurationService.SetShowFolders(checkForUpdatesCheckEdit.Checked);
+            ConfigurationService.SaveConfiguration();
         }
     }
 }

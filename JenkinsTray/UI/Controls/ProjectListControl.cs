@@ -27,11 +27,17 @@ namespace JenkinsTray.UI.Controls
 
         public void Initialize()
         {
+            ConfigurationService.ConfigurationUpdated += configurationService_ConfigurationUpdated;
         }
 
         public void UpdateProjectList(Server server)
         {
             this.server = server;
+            RefreshList();
+        }
+
+        private void RefreshList()
+        {
 #if SYNCRHONOUS
             List<Project> dataSource = new List<Project>();
 
@@ -55,6 +61,8 @@ namespace JenkinsTray.UI.Controls
             Enabled = false;
             var status = string.Format(JenkinsTrayResources.LoadingProjects_FormatString, server.Url);
             Controller.SetStatus(status, true);
+
+            folderNameGridColumn.Visible = ConfigurationService.GeneralSettings.ShowFolders;
 
             // run the process in background
             var process = new Process("Loading project " + server.Url);
@@ -92,6 +100,16 @@ namespace JenkinsTray.UI.Controls
         {
             projectsDataSource = dataSource;
             projectsGridControl.DataSource = projectsDataSource;
+        }
+
+        private void configurationService_ConfigurationUpdated()
+        {
+            SetFoldersVisibility();
+        }
+
+        private void SetFoldersVisibility()
+        {
+            folderNameGridColumn.Visible = ConfigurationService.GeneralSettings.ShowFolders;
         }
 
         private void projectsGridView_CustomUnboundColumnData(object sender, CustomColumnDataEventArgs e)

@@ -69,6 +69,7 @@ namespace JenkinsTray.UI
             base.OnLoad(e);
             Initialize();
             UpdateClaimPluginIntegration();
+            SetFoldersVisibility();
             LoadIcons();
             LoadProjects();
         }
@@ -76,6 +77,7 @@ namespace JenkinsTray.UI
         private void configurationService_ConfigurationUpdated()
         {
             UpdateClaimPluginIntegration();
+            SetFoldersVisibility();
             LoadProjects();
             if (ConfigurationService.GeneralSettings.UpdateMainWindowIcon == false)
                 ResetIcon();
@@ -608,6 +610,11 @@ namespace JenkinsTray.UI
                 claimedByGridColumn.Visible = false;
                 claimReasonGridColumn.Visible = false;
             }
+        }
+
+        private void SetFoldersVisibility()
+        {
+            folderGridColumn.Visible = ConfigurationService.GeneralSettings.ShowFolders;
         }
 
         private void acknowledgeProjectMenuItem_Click(object sender, EventArgs e)

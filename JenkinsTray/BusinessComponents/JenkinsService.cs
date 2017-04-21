@@ -37,6 +37,8 @@ namespace JenkinsTray.BusinessComponents
 
         public ClaimService ClaimService { get; set; }
 
+        public ConfigurationService ConfigurationService { get; set; }
+
         public IList<Project> LoadProjects(Server server)
         {
             var url = NetUtils.ConcatUrls(server.Url, "/api/xml?tree=jobs[name,url,color]");
@@ -63,20 +65,25 @@ namespace JenkinsTray.BusinessComponents
         {
             var projects = new List<Project>();
 
+            var showFolders = ConfigurationService.GeneralSettings.ShowFolders;
+
             foreach (XmlNode jobElement in jobElements)
             {
                 var projectName = jobElement.SelectSingleNode("name").InnerText;
                 var projectUrl = jobElement.SelectSingleNode("url").InnerText;
                 var projectColor = jobElement.SelectSingleNode("color");
                 // If the job is a folder we need to recursively get the jobs within.
-                if (jobElement.SelectSingleNode("color") == null)
+                if (projectColor == null)  //folders do not have a color node
                 {
-                    var url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
-                    var xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
-                    var xml = new XmlDocument();
-                    xml.LoadXml(xmlStr);
-                    var nodes = xml.SelectNodes("/folder/job");
-                    projects.AddRange(GetProjects(nodes, server, projectName));
+                    if (showFolders)
+                    {
+                        var url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
+                        var xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
+                        var xml = new XmlDocument();
+                        xml.LoadXml(xmlStr);
+                        var nodes = xml.SelectNodes("/folder/job");
+                        projects.AddRange(GetProjects(nodes, server, projectName));
+                    }
                 }
                 else
                 {
