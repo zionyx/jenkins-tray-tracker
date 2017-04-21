@@ -650,6 +650,11 @@ namespace JenkinsTray.UI
                 get { return Project.Server.DisplayText; }
             }
 
+            public string Folder
+            {
+                get { return Project.Folder; }
+            }
+
             public string Name
             {
                 get { return ShowDisplayname && string.IsNullOrEmpty(Project.DisplayName) ? Project.Name : Project.DisplayName; }

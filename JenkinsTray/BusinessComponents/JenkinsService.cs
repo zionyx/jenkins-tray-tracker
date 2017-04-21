@@ -59,7 +59,7 @@ namespace JenkinsTray.BusinessComponents
             return projects;
         }
 
-        public List<Project> GetProjects(XmlNodeList jobElements, Server server)
+        public List<Project> GetProjects(XmlNodeList jobElements, Server server, string folder = "")
         {
             var projects = new List<Project>();
 
@@ -76,12 +76,16 @@ namespace JenkinsTray.BusinessComponents
                     var xml = new XmlDocument();
                     xml.LoadXml(xmlStr);
                     var nodes = xml.SelectNodes("/folder/job");
-                    projects.AddRange(GetProjects(nodes, server));
+                    projects.AddRange(GetProjects(nodes, server, projectName));
                 }
                 else
                 {
                     var project = new Project();
                     project.Server = server;
+                    if (!string.IsNullOrEmpty(folder))
+                    {
+                        project.Folder = folder;
+                    }
                     project.Name = projectName;
                     project.Url = projectUrl;
 

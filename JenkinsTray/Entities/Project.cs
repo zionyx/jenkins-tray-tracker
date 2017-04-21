@@ -14,6 +14,9 @@ namespace JenkinsTray.Entities
 
         public Server Server { get; set; }
 
+        [JsonProperty("folder")]
+        public string Folder { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 
@@ -128,8 +131,11 @@ namespace JenkinsTray.Entities
             var other = obj as Project;
             if (other == null)
                 return false;
+            if (Server == null)
+                return false;
             return other.Server.Equals(Server)
-                   && other.Name == Name;
+                   && other.Name == Name
+                   && other.Folder == Folder;
         }
 
         public override string ToString()

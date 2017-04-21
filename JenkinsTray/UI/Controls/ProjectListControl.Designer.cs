@@ -37,6 +37,7 @@ namespace JenkinsTray.UI.Controls
             this.projectsGridView = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.projectSelectedGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.projectSelectedCheckEdit = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
+            this.folderNameGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.projectNameGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar2 = new DevExpress.XtraBars.Bar();
@@ -96,6 +97,7 @@ namespace JenkinsTray.UI.Controls
             // 
             this.projectsGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
             this.projectSelectedGridColumn,
+            this.folderNameGridColumn,
             this.projectNameGridColumn});
             this.projectsGridView.GridControl = this.projectsGridControl;
             this.projectsGridView.Name = "projectsGridView";
@@ -104,7 +106,7 @@ namespace JenkinsTray.UI.Controls
             this.projectsGridView.OptionsView.ShowGroupPanel = false;
             this.projectsGridView.OptionsView.ShowIndicator = false;
             this.projectsGridView.SortInfo.AddRange(new DevExpress.XtraGrid.Columns.GridColumnSortInfo[] {
-            new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.projectNameGridColumn, DevExpress.Data.ColumnSortOrder.Ascending)});
+            new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.folderNameGridColumn, DevExpress.Data.ColumnSortOrder.Ascending)});
             this.projectsGridView.CustomUnboundColumnData += new DevExpress.XtraGrid.Views.Base.CustomColumnDataEventHandler(this.projectsGridView_CustomUnboundColumnData);
             // 
             // projectSelectedGridColumn
@@ -123,6 +125,17 @@ namespace JenkinsTray.UI.Controls
             this.projectSelectedCheckEdit.Name = "projectSelectedCheckEdit";
             this.projectSelectedCheckEdit.EditValueChanged += new System.EventHandler(this.projectSelectedCheckEdit_EditValueChanged);
             // 
+            // folderNameGridColumn
+            // 
+            this.folderNameGridColumn.Caption = "Folder";
+            this.folderNameGridColumn.FieldName = "Folder";
+            this.folderNameGridColumn.Name = "folderNameGridColumn";
+            this.folderNameGridColumn.OptionsColumn.AllowEdit = false;
+            this.folderNameGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.DisplayText;
+            this.folderNameGridColumn.Visible = true;
+            this.folderNameGridColumn.VisibleIndex = 1;
+            this.folderNameGridColumn.Width = 172;
+            // 
             // projectNameGridColumn
             // 
             this.projectNameGridColumn.Caption = "Projects";
@@ -131,7 +144,7 @@ namespace JenkinsTray.UI.Controls
             this.projectNameGridColumn.OptionsColumn.AllowEdit = false;
             this.projectNameGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.DisplayText;
             this.projectNameGridColumn.Visible = true;
-            this.projectNameGridColumn.VisibleIndex = 1;
+            this.projectNameGridColumn.VisibleIndex = 2;
             this.projectNameGridColumn.Width = 302;
             // 
             // barManager1
@@ -209,6 +222,7 @@ namespace JenkinsTray.UI.Controls
         private DevExpress.XtraBars.BarDockControl barDockControlBottom;
         private DevExpress.XtraBars.BarDockControl barDockControlLeft;
         private DevExpress.XtraBars.BarDockControl barDockControlRight;
+        private DevExpress.XtraGrid.Columns.GridColumn folderNameGridColumn;
         private DevExpress.XtraGrid.Columns.GridColumn projectNameGridColumn;
         private DevExpress.XtraGrid.Columns.GridColumn projectSelectedGridColumn;
         private DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit projectSelectedCheckEdit;

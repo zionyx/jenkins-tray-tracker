@@ -61,6 +61,7 @@ namespace JenkinsTray.UI
             this.serverGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.statusGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.repositoryItemPictureEdit3 = new DevExpress.XtraEditors.Repository.RepositoryItemPictureEdit();
+            this.folderGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.nameGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.urlGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
             this.buildDetailsGridColumn = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -327,6 +328,7 @@ namespace JenkinsTray.UI
             // projectsGridView
             // 
             this.projectsGridView.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.folderGridColumn,
             this.serverGridColumn,
             this.statusGridColumn,
             this.nameGridColumn,
@@ -350,6 +352,7 @@ namespace JenkinsTray.UI
             this.projectsGridView.OptionsView.ShowIndicator = false;
             this.projectsGridView.SortInfo.AddRange(new DevExpress.XtraGrid.Columns.GridColumnSortInfo[] {
             new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.serverGridColumn, DevExpress.Data.ColumnSortOrder.Ascending),
+            new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.folderGridColumn, DevExpress.Data.ColumnSortOrder.Ascending),
             new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.nameGridColumn, DevExpress.Data.ColumnSortOrder.Ascending)});
             this.projectsGridView.CustomColumnSort += new DevExpress.XtraGrid.Views.Base.CustomColumnSortEventHandler(this.projectsGridView_CustomColumnSort);
             this.projectsGridView.CustomUnboundColumnData += new DevExpress.XtraGrid.Views.Base.CustomColumnDataEventHandler(this.projectsGridView_CustomUnboundColumnData);
@@ -387,6 +390,21 @@ namespace JenkinsTray.UI
             // 
             this.repositoryItemPictureEdit3.Name = "repositoryItemPictureEdit3";
             // 
+            // folderGridColumn
+            // 
+            this.folderGridColumn.AppearanceCell.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.folderGridColumn.AppearanceCell.Options.UseFont = true;
+            this.folderGridColumn.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.folderGridColumn.AppearanceHeader.Options.UseFont = true;
+            this.folderGridColumn.Caption = "Folder";
+            this.folderGridColumn.FieldName = "Folder";
+            this.folderGridColumn.Name = "folderGridColumn";
+            this.folderGridColumn.OptionsColumn.AllowEdit = false;
+            this.folderGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.DisplayText;
+            this.folderGridColumn.Visible = true;
+            this.folderGridColumn.VisibleIndex = 1;
+            this.folderGridColumn.Width = 137;
+            // 
             // nameGridColumn
             // 
             this.nameGridColumn.AppearanceCell.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
@@ -399,7 +417,7 @@ namespace JenkinsTray.UI
             this.nameGridColumn.OptionsColumn.AllowEdit = false;
             this.nameGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.DisplayText;
             this.nameGridColumn.Visible = true;
-            this.nameGridColumn.VisibleIndex = 1;
+            this.nameGridColumn.VisibleIndex = 2;
             this.nameGridColumn.Width = 137;
             // 
             // urlGridColumn
@@ -420,7 +438,7 @@ namespace JenkinsTray.UI
             this.buildDetailsGridColumn.OptionsColumn.AllowEdit = false;
             this.buildDetailsGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.DisplayText;
             this.buildDetailsGridColumn.Visible = true;
-            this.buildDetailsGridColumn.VisibleIndex = 2;
+            this.buildDetailsGridColumn.VisibleIndex = 3;
             this.buildDetailsGridColumn.Width = 200;
             // 
             // lastBuildGridColumn
@@ -433,7 +451,7 @@ namespace JenkinsTray.UI
             this.lastBuildGridColumn.OptionsColumn.AllowEdit = false;
             this.lastBuildGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.Custom;
             this.lastBuildGridColumn.Visible = true;
-            this.lastBuildGridColumn.VisibleIndex = 3;
+            this.lastBuildGridColumn.VisibleIndex = 4;
             this.lastBuildGridColumn.Width = 121;
             // 
             // lastSuccessGridColumn
@@ -446,7 +464,7 @@ namespace JenkinsTray.UI
             this.lastSuccessGridColumn.OptionsColumn.AllowEdit = false;
             this.lastSuccessGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.Custom;
             this.lastSuccessGridColumn.Visible = true;
-            this.lastSuccessGridColumn.VisibleIndex = 4;
+            this.lastSuccessGridColumn.VisibleIndex = 5;
             this.lastSuccessGridColumn.Width = 121;
             // 
             // lastSuccessUserGridColumn
@@ -467,7 +485,7 @@ namespace JenkinsTray.UI
             this.lastFailureGridColumn.OptionsColumn.AllowEdit = false;
             this.lastFailureGridColumn.SortMode = DevExpress.XtraGrid.ColumnSortMode.Custom;
             this.lastFailureGridColumn.Visible = true;
-            this.lastFailureGridColumn.VisibleIndex = 5;
+            this.lastFailureGridColumn.VisibleIndex = 6;
             this.lastFailureGridColumn.Width = 124;
             // 
             // lastFailureUserGridColumn
@@ -477,7 +495,7 @@ namespace JenkinsTray.UI
             this.lastFailureUserGridColumn.Name = "lastFailureUserGridColumn";
             this.lastFailureUserGridColumn.OptionsColumn.AllowEdit = false;
             this.lastFailureUserGridColumn.Visible = true;
-            this.lastFailureUserGridColumn.VisibleIndex = 6;
+            this.lastFailureUserGridColumn.VisibleIndex = 7;
             this.lastFailureUserGridColumn.Width = 65;
             // 
             // claimedByGridColumn
@@ -532,6 +550,7 @@ namespace JenkinsTray.UI
         private DevExpress.XtraBars.BarButtonItem aboutButtonItem;
         private DevExpress.XtraGrid.GridControl projectsGridControl;
         private DevExpress.XtraGrid.Views.Grid.GridView projectsGridView;
+        private DevExpress.XtraGrid.Columns.GridColumn folderGridColumn;
         private DevExpress.XtraGrid.Columns.GridColumn nameGridColumn;
         private DevExpress.XtraGrid.Columns.GridColumn urlGridColumn;
         private DevExpress.XtraGrid.Columns.GridColumn buildDetailsGridColumn;
