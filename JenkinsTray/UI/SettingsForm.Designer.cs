@@ -209,7 +209,7 @@ namespace JenkinsTray.UI
             this.showFoldersCheckEdit.Properties.Caption = "Show &folders";
             this.showFoldersCheckEdit.Size = new System.Drawing.Size(85, 19);
             this.showFoldersCheckEdit.TabIndex = 0;
-            this.showFoldersCheckEdit.CheckedChanged += new System.EventHandler(this.checkForUpdatesCheckEdit_CheckedChanged);
+            this.showFoldersCheckEdit.CheckedChanged += new System.EventHandler(this.showFoldersCheckEdit_CheckedChanged);
             // 
             // checkForUpdatesCheckEdit
             // 
