@@ -64,9 +64,7 @@ namespace JenkinsTray.BusinessComponents
         public List<Project> GetProjects(XmlNodeList jobElements, Server server, string folder = "")
         {
             var projects = new List<Project>();
-
-            var showFolders = ConfigurationService.GeneralSettings.ShowFolders;
-
+            
             foreach (XmlNode jobElement in jobElements)
             {
                 var projectName = jobElement.SelectSingleNode("name").InnerText;
@@ -75,15 +73,12 @@ namespace JenkinsTray.BusinessComponents
                 // If the job is a folder we need to recursively get the jobs within.
                 if (projectColor == null)  //folders do not have a color node
                 {
-                    if (showFolders)
-                    {
-                        var url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
-                        var xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
-                        var xml = new XmlDocument();
-                        xml.LoadXml(xmlStr);
-                        var nodes = xml.SelectNodes("/folder/job");
-                        projects.AddRange(GetProjects(nodes, server, projectName));
-                    }
+                    var url = NetUtils.ConcatUrls(projectUrl, "/api/xml?tree=jobs[name,url,color]");
+                    var xmlStr = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
+                    var xml = new XmlDocument();
+                    xml.LoadXml(xmlStr);
+                    var nodes = xml.SelectNodes("/folder/job");
+                    projects.AddRange(GetProjects(nodes, server, projectName));
                 }
                 else
                 {
