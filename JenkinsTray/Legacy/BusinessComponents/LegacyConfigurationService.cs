@@ -95,6 +95,7 @@ namespace JenkinsTray.BusinessComponents
             generalSettings.UpdateMainWindowIcon = propertiesFile.GetBoolValue("general.UpdateMainWindowIcon", true);
             generalSettings.IntegrateWithClaimPlugin = propertiesFile.GetBoolValue("general.IntegrateWithClaimPlugin",
                                                                                    true);
+            generalSettings.ShowFolders = propertiesFile.GetBoolValue("general.ShowFolders", false);
 
             var res = new Configuration
             {

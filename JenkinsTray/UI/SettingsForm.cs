@@ -47,13 +47,14 @@ namespace JenkinsTray.UI
             updateMainWindowIconCheckEdit.Checked = ConfigurationService.GeneralSettings.UpdateMainWindowIcon;
             integrateWithClaimPluginCheckEdit.Checked = ConfigurationService.GeneralSettings.IntegrateWithClaimPlugin;
             showProjectDisplayNameCheckEdit.Checked = ConfigurationService.GeneralSettings.ShowProjectDisplayNameInMainUI;
+            showFoldersCheckEdit.Checked = ConfigurationService.GeneralSettings.ShowFolders;
             checkForUpdatesCheckEdit.Checked = ConfigurationService.GeneralSettings.CheckForUpdates;
             notificationsSettingsControl.InitializeValues();
         }
 
         private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var refreshInterval = (int) refreshSpinEdit.Value;
+            var refreshInterval = (int)refreshSpinEdit.Value;
             ConfigurationService.SetRefreshIntervalInSeconds(refreshInterval);
             ConfigurationService.SetUpdateMainWindowIcon(updateMainWindowIconCheckEdit.Checked);
             ConfigurationService.SetIntegrateWithClaimPlugin(integrateWithClaimPluginCheckEdit.Checked);
@@ -61,6 +62,7 @@ namespace JenkinsTray.UI
             ConfigurationService.SetCheckForUpdates(checkForUpdatesCheckEdit.Checked);
             ConfigurationService.SetTreadUnstableAsFailed(notificationsSettingsControl.TreadUnstableAsFailed());
             ConfigurationService.SetSoundNotifications(notificationsSettingsControl.SoundNotificationsEnabled());
+            ConfigurationService.SetShowFolders(showFoldersCheckEdit.Checked);
             notificationsSettingsControl.InvalidateData();
         }
 
@@ -69,9 +71,15 @@ namespace JenkinsTray.UI
             if (applicationUpdateService == null)
             {
                 applicationUpdateService =
-                    (ApplicationUpdateService) ContextRegistry.GetContext().GetObject("ApplicationUpdateService");
+                    (ApplicationUpdateService)ContextRegistry.GetContext().GetObject("ApplicationUpdateService");
             }
             applicationUpdateService.EnableTimer(checkForUpdatesCheckEdit.Checked);
+        }
+
+        private void showFoldersCheckEdit_CheckedChanged(object sender, EventArgs e)
+        {
+            ConfigurationService.SetShowFolders(showFoldersCheckEdit.Checked);
+            ConfigurationService.SaveConfiguration();
         }
     }
 }

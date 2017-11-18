@@ -37,14 +37,12 @@ namespace JenkinsTray.UI
             this.generalTabPage = new DevExpress.XtraTab.XtraTabPage();
             this.groupControl1 = new DevExpress.XtraEditors.GroupControl();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.checkForUpdatesCheckEdit = new DevExpress.XtraEditors.CheckEdit();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.refreshLabel = new DevExpress.XtraEditors.LabelControl();
             this.refreshSpinEdit = new DevExpress.XtraEditors.SpinEdit();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.showFoldersCheckEdit = new DevExpress.XtraEditors.CheckEdit();
+            this.checkForUpdatesCheckEdit = new DevExpress.XtraEditors.CheckEdit();
             this.updateMainWindowIconCheckEdit = new DevExpress.XtraEditors.CheckEdit();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.integrateWithClaimPluginCheckEdit = new DevExpress.XtraEditors.CheckEdit();
             this.showProjectDisplayNameCheckEdit = new DevExpress.XtraEditors.CheckEdit();
             ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
@@ -55,13 +53,11 @@ namespace JenkinsTray.UI
             ((System.ComponentModel.ISupportInitialize)(this.groupControl1)).BeginInit();
             this.groupControl1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            this.tableLayoutPanel5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.checkForUpdatesCheckEdit.Properties)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.refreshSpinEdit.Properties)).BeginInit();
-            this.tableLayoutPanel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.showFoldersCheckEdit.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.checkForUpdatesCheckEdit.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.updateMainWindowIconCheckEdit.Properties)).BeginInit();
-            this.tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.integrateWithClaimPluginCheckEdit.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.showProjectDisplayNameCheckEdit.Properties)).BeginInit();
             this.SuspendLayout();
@@ -139,15 +135,17 @@ namespace JenkinsTray.UI
             // 
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel5, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel4, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.checkForUpdatesCheckEdit, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.showFoldersCheckEdit, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.checkForUpdatesCheckEdit, 0, 5);
+            this.tableLayoutPanel2.Controls.Add(this.updateMainWindowIconCheckEdit, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.integrateWithClaimPluginCheckEdit, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.showProjectDisplayNameCheckEdit, 0, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(2, 22);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 6;
+            this.tableLayoutPanel2.RowCount = 7;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -156,31 +154,6 @@ namespace JenkinsTray.UI
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(713, 380);
             this.tableLayoutPanel2.TabIndex = 4;
-            // 
-            // tableLayoutPanel5
-            // 
-            this.tableLayoutPanel5.AutoSize = true;
-            this.tableLayoutPanel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel5.ColumnCount = 1;
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Controls.Add(this.showProjectDisplayNameCheckEdit, 0, 0);
-            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(3, 97);
-            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
-            this.tableLayoutPanel5.RowCount = 1;
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(707, 25);
-            this.tableLayoutPanel5.TabIndex = 6;
-            // 
-            // checkForUpdatesCheckEdit
-            // 
-            this.checkForUpdatesCheckEdit.Location = new System.Drawing.Point(3, 128);
-            this.checkForUpdatesCheckEdit.Name = "checkForUpdatesCheckEdit";
-            this.checkForUpdatesCheckEdit.Properties.AutoWidth = true;
-            this.checkForUpdatesCheckEdit.Properties.Caption = "&Check for updates periodically";
-            this.checkForUpdatesCheckEdit.Size = new System.Drawing.Size(167, 19);
-            this.checkForUpdatesCheckEdit.TabIndex = 0;
-            this.checkForUpdatesCheckEdit.CheckedChanged += new System.EventHandler(this.checkForUpdatesCheckEdit_CheckedChanged);
             // 
             // tableLayoutPanel1
             // 
@@ -228,49 +201,38 @@ namespace JenkinsTray.UI
             this.refreshSpinEdit.Size = new System.Drawing.Size(100, 20);
             this.refreshSpinEdit.TabIndex = 1;
             // 
-            // tableLayoutPanel3
+            // showFoldersCheckEdit
             // 
-            this.tableLayoutPanel3.AutoSize = true;
-            this.tableLayoutPanel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel3.ColumnCount = 1;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Controls.Add(this.updateMainWindowIconCheckEdit, 0, 0);
-            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 35);
-            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 1;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(707, 25);
-            this.tableLayoutPanel3.TabIndex = 4;
+            this.showFoldersCheckEdit.Location = new System.Drawing.Point(3, 110);
+            this.showFoldersCheckEdit.Name = "showFoldersCheckEdit";
+            this.showFoldersCheckEdit.Properties.AutoWidth = true;
+            this.showFoldersCheckEdit.Properties.Caption = "Show &folders";
+            this.showFoldersCheckEdit.Size = new System.Drawing.Size(85, 19);
+            this.showFoldersCheckEdit.TabIndex = 0;
+            this.showFoldersCheckEdit.CheckedChanged += new System.EventHandler(this.showFoldersCheckEdit_CheckedChanged);
+            // 
+            // checkForUpdatesCheckEdit
+            // 
+            this.checkForUpdatesCheckEdit.Location = new System.Drawing.Point(3, 135);
+            this.checkForUpdatesCheckEdit.Name = "checkForUpdatesCheckEdit";
+            this.checkForUpdatesCheckEdit.Properties.AutoWidth = true;
+            this.checkForUpdatesCheckEdit.Properties.Caption = "&Check for updates periodically";
+            this.checkForUpdatesCheckEdit.Size = new System.Drawing.Size(167, 19);
+            this.checkForUpdatesCheckEdit.TabIndex = 0;
+            this.checkForUpdatesCheckEdit.CheckedChanged += new System.EventHandler(this.checkForUpdatesCheckEdit_CheckedChanged);
             // 
             // updateMainWindowIconCheckEdit
             // 
-            this.updateMainWindowIconCheckEdit.Location = new System.Drawing.Point(3, 3);
+            this.updateMainWindowIconCheckEdit.Location = new System.Drawing.Point(3, 35);
             this.updateMainWindowIconCheckEdit.Name = "updateMainWindowIconCheckEdit";
             this.updateMainWindowIconCheckEdit.Properties.AutoWidth = true;
             this.updateMainWindowIconCheckEdit.Properties.Caption = "&Update the main window\'s icon";
             this.updateMainWindowIconCheckEdit.Size = new System.Drawing.Size(170, 19);
             this.updateMainWindowIconCheckEdit.TabIndex = 5;
             // 
-            // tableLayoutPanel4
-            // 
-            this.tableLayoutPanel4.AutoSize = true;
-            this.tableLayoutPanel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel4.ColumnCount = 1;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Controls.Add(this.integrateWithClaimPluginCheckEdit, 0, 0);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 66);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 1;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(707, 25);
-            this.tableLayoutPanel4.TabIndex = 5;
-            // 
             // integrateWithClaimPluginCheckEdit
             // 
-            this.integrateWithClaimPluginCheckEdit.Location = new System.Drawing.Point(3, 3);
+            this.integrateWithClaimPluginCheckEdit.Location = new System.Drawing.Point(3, 60);
             this.integrateWithClaimPluginCheckEdit.Name = "integrateWithClaimPluginCheckEdit";
             this.integrateWithClaimPluginCheckEdit.Properties.AutoWidth = true;
             this.integrateWithClaimPluginCheckEdit.Properties.Caption = "Integrate with Clai&m plugin (experimental)";
@@ -279,7 +241,7 @@ namespace JenkinsTray.UI
             // 
             // showProjectDisplayNameCheckEdit
             // 
-            this.showProjectDisplayNameCheckEdit.Location = new System.Drawing.Point(3, 3);
+            this.showProjectDisplayNameCheckEdit.Location = new System.Drawing.Point(3, 85);
             this.showProjectDisplayNameCheckEdit.Name = "showProjectDisplayNameCheckEdit";
             this.showProjectDisplayNameCheckEdit.Properties.AutoWidth = true;
             this.showProjectDisplayNameCheckEdit.Properties.Caption = "&Show display name over project name in Main UI";
@@ -308,15 +270,12 @@ namespace JenkinsTray.UI
             this.groupControl1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            this.tableLayoutPanel5.ResumeLayout(false);
-            this.tableLayoutPanel5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.checkForUpdatesCheckEdit.Properties)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.refreshSpinEdit.Properties)).EndInit();
-            this.tableLayoutPanel3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.showFoldersCheckEdit.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.checkForUpdatesCheckEdit.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.updateMainWindowIconCheckEdit.Properties)).EndInit();
-            this.tableLayoutPanel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.integrateWithClaimPluginCheckEdit.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.showProjectDisplayNameCheckEdit.Properties)).EndInit();
             this.ResumeLayout(false);
@@ -336,12 +295,10 @@ namespace JenkinsTray.UI
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private DevExpress.XtraEditors.LabelControl refreshLabel;
         private DevExpress.XtraEditors.GroupControl groupControl1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private DevExpress.XtraEditors.CheckEdit updateMainWindowIconCheckEdit;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private DevExpress.XtraEditors.CheckEdit integrateWithClaimPluginCheckEdit;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private DevExpress.XtraEditors.CheckEdit checkForUpdatesCheckEdit;
         private DevExpress.XtraEditors.CheckEdit showProjectDisplayNameCheckEdit;
+        private DevExpress.XtraEditors.CheckEdit showFoldersCheckEdit;
     }
 }
