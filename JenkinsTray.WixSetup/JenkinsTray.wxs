@@ -1,34 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*"
-           Name="$(var.ProductName)"
-           Language="1033"
-           Version="$(var.ProductVersion)"
-           Manufacturer="$(var.ProductName) Project"
-           UpgradeCode="C8D46C5C-C37A-4596-BDDC-446D53436CFC">
-
-    <Package InstallerVersion="200" Compressed="yes" />
-
+<Wix 
+  xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductName) Project" UpgradeCode="C8D46C5C-C37A-4596-BDDC-446D53436CFC">
+    <Package InstallerVersion="200" Description="$(var.ProductName) $(var.ProductVersion)" Compressed="yes" InstallPrivileges="elevated" InstallScope="perMachine" Platform="x86"/>
     <Condition Message="A newer version of [ProductName] is already installed. Setup will now exit.">
       NOT NEWERVERSIONDETECTED OR Installed
     </Condition>
-
+    <!--
+    <Condition Message="This application requires .NET Framework 4.5. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR NETFRAMEWORK45]]>
+    </Condition>
+    -->
     <Upgrade Id="C8D46C5C-C37A-4596-BDDC-446D53436CFC">
-      <UpgradeVersion OnlyDetect="yes"
-                      Minimum="$(var.ProductVersion)"
-                      Property="NEWERVERSIONDETECTED"
-                      IncludeMinimum="no" />
-      <UpgradeVersion OnlyDetect="no"
-                      Maximum="$(var.ProductVersion)"
-                      Property="OLDERVERSIONBEINGUPGRADED"
-                      IncludeMaximum="no" />
+      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.ProductVersion)" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
+      <UpgradeVersion OnlyDetect="no" Maximum="$(var.ProductVersion)" Property="OLDERVERSIONBEINGUPGRADED" IncludeMaximum="no" />
     </Upgrade>
-
-    <Media Id="1" Cabinet="JenkinsTray.cab" EmbedCab="yes" />
-
+    <Media Id="1" Cabinet="$(var.AppName).cab" EmbedCab="yes" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="$(var.ProductName)" FileSource="$(var.SolutionDir)JenkinsTray\bin\x86\$(var.Configuration)">
+        <Directory Id="INSTALLLOCATION" Name="$(var.ProductName)" FileSource="$(var.SolutionDir)JenkinsTray\bin\$(var.Configuration)">
           <Component Id="cmp9C7F9E356EE86CE45ED3BA0B5BEAD581" Guid="{C484E181-B75C-4C50-AB24-83060D94D229}">
             <File Id="fil7D65322AEFD472BABBD4824D11274DAE" KeyPath="yes" Name="Common.Logging.dll" />
           </Component>
@@ -77,44 +67,34 @@
           <Component Id="cmp47CBB58C539892268E22BA64A5A479AD" Guid="{2A7873DD-3685-4A6F-AA33-D6D5DD51FE77}">
             <File Id="fil6DE4942C65AE21E7C7EF069364A9C3D3" KeyPath="yes" Name="Spring.Core.dll" />
           </Component>
-
           <Directory Id="setup" Name="setup">
             <Component Id="cmp0FAE03C65D96ED1D021C482BB95EC17C" Guid="{219D2CA4-86EE-40F5-B58A-0090402D2373}">
-              <File Id="fil05B5A1FCB0324171FCF22AD1C566E172" KeyPath="yes" Source="$(var.SolutionDir)JenkinsTray.Setup.CustomActions\bin\x86\$(var.Configuration)\JenkinsTray.Setup.CustomActions.dll" />
+              <File Id="fil05B5A1FCB0324171FCF22AD1C566E172" KeyPath="yes" Source="$(var.SolutionDir)JenkinsTray.Setup.CustomActions\bin\$(var.Configuration)\JenkinsTray.Setup.CustomActions.dll" />
             </Component>
             <Component Id="cmp053A2ABE2833EF70F99155D399B3D030" Guid="{50413CFC-020E-4A7F-9933-1EDE39DEA88D}">
               <File Id="InstallUtilConfig" KeyPath="yes" Source="src\InstallUtilConfig.xml" />
             </Component>
           </Directory>
-          
           <!-- Shortcuts menu -->
           <Directory Id="ProgramMenuFolder">
             <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)">
               <Component Id="ApplicationShortcut" Guid="{BC1439CD-7AE8-4A71-99CE-C3C2512BE23A}">
-                <Shortcut Id="ApplicationStartMenuShortcut" Name="$(var.ProductName)" Description="$(var.ProductName) $(var.ProductVersion)"
-                          Target="[#filACD69880BE1FDE3432073222CF6438B2]" WorkingDirectory="INSTALLLOCATION"/>
+                <Shortcut Id="ApplicationStartMenuShortcut" Name="$(var.ProductName)" Description="$(var.ProductName) $(var.ProductVersion)" Target="[#filACD69880BE1FDE3432073222CF6438B2]" WorkingDirectory="INSTALLLOCATION"/>
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-                <RegistryValue Root="HKCU" Key="Software\JenkinsTray" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+                <RegistryValue Root="HKCU" Key="Software\$(var.AppName)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
               </Component>
             </Directory>
-            
             <Directory Id="StartupFolder" Name="Startup">
               <Component Id="StartupShortcut" Guid="{3BC25ED5-9C5B-4513-A90B-87C4CDB75DF9}">
-                <Shortcut Id="StartupMenuShortcut" Directory="StartupFolder" Name="$(var.ProductName)" Description="$(var.ProductName) $(var.ProductVersion)"
-                          Target="[#filACD69880BE1FDE3432073222CF6438B2]" WorkingDirectory="INSTALLLOCATION"/>
-                <RegistryValue Root="HKCU" Key="Software\JenkinsTray" Name="startup" Type="integer" Value="1" KeyPath="yes"/>
+                <Shortcut Id="StartupMenuShortcut" Directory="StartupFolder" Name="$(var.ProductName)" Description="$(var.ProductName) $(var.ProductVersion)" Target="[#filACD69880BE1FDE3432073222CF6438B2]" WorkingDirectory="INSTALLLOCATION"/>
+                <RegistryValue Root="HKCU" Key="Software\$(var.AppName)" Name="startup" Type="integer" Value="1" KeyPath="yes"/>
               </Component>
             </Directory>
           </Directory>
-          
-          <Directory Id="DesktopFolder" Name="Desktop" />
-          
-        </Directory>
+          <Directory Id="DesktopFolder" Name="Desktop" /></Directory>
       </Directory>
     </Directory>
-
     <Binary Id="InstallUtil" SourceFile="src\InstallUtilLib.dll" />
-
     <Feature Id="Application" Title="$(var.ProductName)" Level="1">
       <ComponentRef Id="cmp9C7F9E356EE86CE45ED3BA0B5BEAD581"/>
       <ComponentRef Id="cmpB5CD10B4F08899371641B0C0DE534EE3"/>
@@ -135,31 +115,24 @@
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentRef Id="StartupShortcut" />
     </Feature>
-
     <Feature Id="Setup" Title="Setup" Level="1">
       <ComponentRef Id="cmp0FAE03C65D96ED1D021C482BB95EC17C"/>
       <ComponentRef Id="cmp053A2ABE2833EF70F99155D399B3D030"/>
     </Feature>
-
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
-
     <Property Id="WixShellExecTarget" Value="[#filACD69880BE1FDE3432073222CF6438B2]" />
     <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
-
     <UI>
       <UIRef Id="WixUI_InstallDir_Custom" />
     </UI>
-
     <UI Id="WixUI_InstallDir_Custom">
       <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
       <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
       <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
-
       <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
       <Property Id="WixUI_Mode" Value="InstallDir" />
-
       <DialogRef Id="BrowseDlg" />
       <DialogRef Id="DiskCostDlg" />
       <DialogRef Id="ErrorDlg" />
@@ -170,61 +143,47 @@
       <DialogRef Id="ProgressDlg" />
       <DialogRef Id="ResumeDlg" />
       <DialogRef Id="UserExit" />
-
       <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
-      <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
-
+      <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4">
+        <![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]>
+      </Publish>
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication" Order="1">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
       <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
-
       <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">1</Publish>
-
       <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
       <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
       <Publish Dialog="InstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="2">NOT WIXUI_DONTVALIDATEPATH</Publish>
-      <Publish Dialog="InstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3">
+        <![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]>
+      </Publish>
       <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
       <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
       <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2">1</Publish>
-
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg" Order="1">NOT Installed</Publish>
       <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed</Publish>
-
       <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
-
       <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
       <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
       <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
-
       <Property Id="ARPNOMODIFY" Value="1" />
     </UI>
-
     <UIRef Id="WixUI_Common" />
-
     <CustomAction Id='Uninstall' BinaryKey='InstallUtil' DllEntry='ManagedInstall' Execute='deferred' Impersonate="no" />
     <CustomAction Id='UninstallSetProp' Property='Uninstall' Value='/installtype=notransaction /action=uninstall /LogFile= "[#fil05B5A1FCB0324171FCF22AD1C566E172]" "[#InstallUtilConfig]"' />
-
     <CustomAction Id='Install' BinaryKey='InstallUtil' DllEntry='ManagedInstall' Execute='deferred' Impersonate="no" />
     <CustomAction Id='InstallSetProp' Property='Install' Value='/installtype=notransaction /action=install /LogFile= "[#fil05B5A1FCB0324171FCF22AD1C566E172]" "[#InstallUtilConfig]"' />
-
     <CustomAction Id='Rollback' BinaryKey='InstallUtil' DllEntry='ManagedInstall' Execute='rollback' Impersonate="no" />
     <CustomAction Id='RollbackSetProp' Property='Rollback' Value='/installtype=notransaction /action=rollback /LogFile= "[#fil05B5A1FCB0324171FCF22AD1C566E172]" "[#InstallUtilConfig]"' />
-
     <CustomAction Id='Commit' BinaryKey='InstallUtil' DllEntry='ManagedInstall' Execute='commit' Impersonate="no" />
     <CustomAction Id='CommitSetProp' Property='Commit' Value='/installtype=notransaction /action=commit /LogFile= "[#fil05B5A1FCB0324171FCF22AD1C566E172]" "[#InstallUtilConfig]"' />
-
     <InstallExecuteSequence>
       <RemoveExistingProducts After="InstallInitialize"/>
-
       <Custom Action="InstallSetProp" After="StartServices">$cmp0FAE03C65D96ED1D021C482BB95EC17C&gt;2</Custom>
       <Custom Action="Install" After="InstallSetProp">$cmp0FAE03C65D96ED1D021C482BB95EC17C&gt;2</Custom>
-
       <Custom Action="UninstallSetProp" After="MsiUnpublishAssemblies">$cmp0FAE03C65D96ED1D021C482BB95EC17C=2</Custom>
       <Custom Action="Uninstall" After="UninstallSetProp">$cmp0FAE03C65D96ED1D021C482BB95EC17C=2</Custom>
-
       <Custom Action="CommitSetProp" After="Rollback">$cmp0FAE03C65D96ED1D021C482BB95EC17C&gt;2</Custom>
       <Custom Action="Commit" After="CommitSetProp">$cmp0FAE03C65D96ED1D021C482BB95EC17C&gt;2</Custom>
-
       <Custom Action="RollbackSetProp" After="Install">$cmp0FAE03C65D96ED1D021C482BB95EC17C&gt;2</Custom>
       <Custom Action="Rollback" After="RollbackSetProp">$cmp0FAE03C65D96ED1D021C482BB95EC17C&gt;2</Custom>
     </InstallExecuteSequence>

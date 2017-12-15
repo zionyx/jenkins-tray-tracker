@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>5b8dc68a-af8d-45f9-aef1-dd133ea876d7</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>JenkinsTray.WixBootstrap</OutputName>
+    <OutputType>Bundle</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Bundle.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixBalExtension">
+      <HintPath>$(WixExtDir)\WixBalExtension.dll</HintPath>
+      <Name>WixBalExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JenkinsTray.Setup.CustomActions\JenkinsTray.Setup.CustomActions.csproj">
+      <Name>JenkinsTray.Setup.CustomActions</Name>
+      <Project>{95aa7347-a21a-4f09-80df-d9797b0fa997}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\JenkinsTray.WixSetup\JenkinsTray.WixSetup.wixproj">
+      <Name>JenkinsTray.WixSetup</Name>
+      <Project>{4839b061-a1df-4f9f-852e-95f534d949bb}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
+  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
+    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
+  </Target>
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	Other similar extension points exist, see Wix.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+  <UsingTask AssemblyFile="..\JenkinsTray.Setup.CustomActions\bin\$(Platform)\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
+  <Target Name="BeforeBuild">
+    <!-- Get the programs assembly version from the .exe file -->
+    <GetAssemblyFileVersion strFilePathAssemblyInfo="..\JenkinsTray\Properties\AssemblyInfo.cs">
+      <Output TaskParameter="strAssemblyFileVersion" PropertyName="strAssemblyFileVersion" />
+    </GetAssemblyFileVersion>
+    <!-- Store the assembly version number in ProductVersion preprocessor variable -->
+    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion);ProductName=Jenkins Tray;AppName=JenkinsTray">
+      <Output TaskParameter="Value" PropertyName="DefineConstants" />
+    </CreateProperty>
+    <!-- Name the .msi file after the solution platform and assembly version e.g JenkinsTray-v1.4.0.0.msi -->
+    <CreateProperty Value="$(OutputName)_v$(strAssemblyFileVersion)">
+      <Output TaskParameter="Value" PropertyName="TargetName" />
+    </CreateProperty>
+    <!-- Name the .wixpdb file after the solution platform and assembly version e.g JenkinsTray-v1.4.0.0.msi -->
+    <CreateProperty Value="$(TargetName)$(TargetPdbExt)">
+      <Output TaskParameter="Value" PropertyName="TargetPdbName" />
+    </CreateProperty>
+  </Target>  
+</Project>

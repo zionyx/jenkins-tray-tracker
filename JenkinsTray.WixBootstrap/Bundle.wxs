@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+  <Bundle Name="$(var.ProductName) Bootstrap" Version="$(var.ProductVersion)" Manufacturer="$(var.ProductName) Project" UpgradeCode="5b8dc68a-af8d-45f9-aef1-dd133ea876d7">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+    <Chain>
+      <!-- TODO: Define the list of chained packages. -->
+      <PackageGroupRef Id="NetFx452Web"/>
+      <!-- <MsiPackage SourceFile="path\to\your.msi" /> -->
+      <MsiPackage SourceFile="..\JenkinsTray.WixSetup\bin\$(var.Configuration)\$(var.AppName)_v$(var.ProductVersion).msi" DisplayInternalUI="no" />
+    </Chain>
+  </Bundle>
+</Wix>

@@ -1,0 +1,22 @@
+<Wix 
+    xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+    xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" 
+    xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+    <Bundle Name="Test" Version="1.0.0.0" IconSourceFile="Setup.ico">
+        <BootstrapperApplicationRef Id="ManagedBootstrapperApplicationHost">
+            <Payload Name="BootstrapperCore.config" SourceFile="$(var.TestUX.TargetDir)\TestUX.BootstrapperCore.config"/>
+            <Payload SourceFile="$(var.TestUX.TargetPath)"/>
+            <Payload SourceFile="NetfxLicense.rtf"/>
+        </BootstrapperApplicationRef>
+        <Chain>
+            <PackageGroupRef Id="Netfx452Full"/>
+            <MsiPackage Compressed="yes" SourceFile="$(var.TestPackage.TargetPath)" Vital="yes">
+                <MsiProperty Name="ARPSYSTEMCOMPONENT" Value="1" DisplayInternalUI='yes' />
+            </MsiPackage>
+        </Chain>
+    </Bundle>
+    <Bundle>
+        <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+        <Chain></Chain>
+    </Bundle>
+</Wix>

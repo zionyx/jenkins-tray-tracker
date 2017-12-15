@@ -53,14 +53,14 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  <UsingTask AssemblyFile="..\JenkinsTray.Setup.CustomActions\bin\$(Platform)\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
+  <UsingTask AssemblyFile="..\JenkinsTray.Setup.CustomActions\bin\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
   <Target Name="BeforeBuild">
     <!-- Get the programs assembly version from the .exe file -->
     <GetAssemblyFileVersion strFilePathAssemblyInfo="..\JenkinsTray\Properties\AssemblyInfo.cs">
       <Output TaskParameter="strAssemblyFileVersion" PropertyName="strAssemblyFileVersion" />
     </GetAssemblyFileVersion>
     <!-- Store the assembly version number in ProductVersion preprocessor variable -->
-    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion);ProductName=Jenkins Tray">
+    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion);ProductName=Jenkins Tray;AppName=JenkinsTray">
       <Output TaskParameter="Value" PropertyName="DefineConstants" />
     </CreateProperty>
     <!-- Name the .msi file after the solution platform and assembly version e.g JenkinsTray-v1.4.0.0.msi -->

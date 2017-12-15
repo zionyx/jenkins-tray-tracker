@@ -23,7 +23,8 @@ namespace JenkinsTray.Setup.CustomActions
                 streamreaderAssemblyInfo = new StreamReader(strFilePathAssemblyInfo);
                 while ((strLine = streamreaderAssemblyInfo.ReadLine()) != null)
                 {
-                    matchVersion = Regex.Match(strLine, @"(?:AssemblyFileVersion\("")(?<ver>(\d*)\.(\d*)(\.(\d*)(\.(\d*))?)?)(?:""\))", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+                    matchVersion = Regex.Match(strLine, @"(?:AssemblyFileVersion\("")(?<ver>(\d*)\.(\d*)(\.(\d*)(\.(\d*))?)?)(?:""\))", 
+                        RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
                     if (matchVersion.Success)
                     {
                         groupVersion = matchVersion.Groups["ver"];
