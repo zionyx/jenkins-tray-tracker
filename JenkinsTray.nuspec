@@ -3,13 +3,13 @@
     <metadata>
         <id>JenkinsTray</id>
         <version>$version$</version>
-        <authors>Jenkins Tray Project contributors</authors>
+        <authors>Jenkins Tray Project</authors>
         <owners>Jenkins Tray Project</owners>
         <licenseUrl>https://raw.githubusercontent.com/zionyx/jenkins-tray/master/LICENSE</licenseUrl>
         <iconUrl>https://github.com/zionyx/jenkins-tray/raw/master/JenkinsTray/JenkinsTray.ico</iconUrl>
         <projectUrl>https://github.com/zionyx/jenkins-tray</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Jenkins Tray App for Windows</description>
+        <description>Jenkins Tray</description>
         <copyright>Copyright 2017 Jenkins Tray Project</copyright>
         <tags>Jenkins Desktop Tray Client Application</tags>
     </metadata>
