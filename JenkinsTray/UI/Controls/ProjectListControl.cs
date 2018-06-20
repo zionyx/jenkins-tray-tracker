@@ -75,7 +75,8 @@ namespace JenkinsTray.UI.Controls
                                               {
                                                   endStatus = string.Format(
                                                       JenkinsTrayResources.FailedLoadingProjects_ErrorMessage,
-                                                      server.Url, e.Error.Message);
+                                                      string.IsNullOrEmpty(server.DisplayName) ? server.Url : server.DisplayName,
+                                                      e.Error.Message);
                                               }
 
                                               // enable the window, change the cursor, update the status
