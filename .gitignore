@@ -119,3 +119,4 @@ version.txt
 .vscode/
 # Squirrel.Windows Releases folder
 Releases/
+**/Components.wxs

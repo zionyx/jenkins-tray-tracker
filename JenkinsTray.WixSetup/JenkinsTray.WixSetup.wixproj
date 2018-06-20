@@ -58,13 +58,13 @@
   <Import Project="$(WixTargetsPath)" />
   <UsingTask AssemblyFile="..\JenkinsTray.Setup.CustomActions\bin\$(Platform)\$(Configuration)\JenkinsTray.Setup.CustomActions.dll" TaskName="JenkinsTray.Setup.CustomActions.GetAssemblyFileVersion" />
   <Target Name="BeforeBuild">
-    <Exec Command="&quot;$(WixToolPath)Heat.exe&quot; dir &quot;$(SolutionDir)JenkinsTray\bin\$(Configuration)&quot; -ag -cg InstallationTarget -dr INSTALLATION -template fragment -sreg -sfrag -srd -var var.InstallSrcDir -o &quot;$(MSBuildThisFileDirectory)\Components.wxs&quot; -t &quot;$(MSBuildThisFileDirectory)\ExcludePDB.xlst&quot;" />
+    <Exec Command="&quot;$(WixToolPath)Heat.exe&quot; dir &quot;$(SolutionDir)JenkinsTray\$(OutDir)\&quot; -ag -cg InstallationTarget -dr INSTALLATION -template fragment -sreg -sfrag -srd -var var.InstallSrcDir -o &quot;$(MSBuildThisFileDirectory)Components.wxs&quot; -t &quot;$(MSBuildThisFileDirectory)ExcludePDB.xlst&quot;" />
     <!-- Get the programs assembly version from the .exe file -->
     <GetAssemblyFileVersion strFilePathAssemblyInfo="..\JenkinsTray\Properties\AssemblyInfo.cs">
       <Output TaskParameter="strAssemblyFileVersion" PropertyName="strAssemblyFileVersion" />
     </GetAssemblyFileVersion>
     <!-- Store the assembly version number in ProductVersion preprocessor variable -->
-    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion);ProductName=Jenkins Tray;InstallSrcDir=$(SolutionDir)JenkinsTray\bin\$(Configuration)">
+    <CreateProperty Value="$(DefineConstants);ProductVersion=$(strAssemblyFileVersion);ProductName=Jenkins Tray;InstallSrcDir=$(SolutionDir)JenkinsTray\$(OutDir)">
       <Output TaskParameter="Value" PropertyName="DefineConstants" />
     </CreateProperty>
     <!-- Name the .msi file after the solution platform and assembly version e.g JenkinsTray-v1.4.0.0.msi -->
