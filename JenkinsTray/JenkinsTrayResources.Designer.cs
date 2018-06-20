@@ -542,6 +542,15 @@ namespace JenkinsTray {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to load {0}. {1}.
+        /// </summary>
+        internal static string FailedLoadingProjects_ErrorMessage {
+            get {
+                return ResourceManager.GetString("FailedLoadingProjects_ErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error loading projects from {0}.
         /// </summary>
         internal static string FailedLoadingProjects_FormatString {

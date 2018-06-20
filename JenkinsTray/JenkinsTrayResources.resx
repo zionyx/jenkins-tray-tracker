@@ -355,4 +355,7 @@ The application will now be closed.</value>
   <data name="StopBuildFailed_Text" xml:space="preserve">
     <value>Failed stopping / cancelling queued build: {0}.</value>
   </data>
+  <data name="FailedLoadingProjects_ErrorMessage" xml:space="preserve">
+    <value>Unable to load {0}. {1}</value>
+  </data>
 </root>
