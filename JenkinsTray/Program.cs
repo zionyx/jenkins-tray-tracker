@@ -10,6 +10,8 @@ using JenkinsTray.UI;
 using JenkinsTray.Utils;
 using JenkinsTray.Utils.Logging;
 using Spring.Context.Support;
+using Squirrel;
+using System.Linq;
 
 namespace JenkinsTray
 {
@@ -25,6 +27,8 @@ namespace JenkinsTray
         {
             try
             {
+                Update();
+
                 Application.ThreadException += ThreadExceptionHandler.Application_ThreadException;
 
                 // skinning         
@@ -75,6 +79,66 @@ namespace JenkinsTray
             logger.Info(Assembly.GetExecutingAssembly().GetName().Name
                         + " v" + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion +
                         " Exit");
+        }
+
+        private static async void Update()
+        {
+            try
+            {
+                using (var mgr = UpdateManager.GitHubUpdateManager("https://github.com/zionyx/jenkins-tray"))
+                {
+                    SquirrelAwareApp.HandleEvents(
+                        onInitialInstall: v => OnInitialInstall(mgr.Result),
+                        onAppUpdate: v => OnAppUpdate(mgr.Result),
+                        onAppUninstall: v => OnAppUninstall(mgr.Result));
+                    var updateInfo = await mgr.Result.CheckForUpdate();
+                    if (updateInfo == null || !updateInfo.ReleasesToApply.Any())
+                    {
+                        return;
+                    }
+                    //this.events.GetEvent<UiMessageEvent>().Publish(new UiMessage($"Downloading new Version: {updateInfo.FutureReleaseEntry.Version}", UiMessage.Severity.Info));
+                    var releases = updateInfo.ReleasesToApply;
+                    await mgr.Result.DownloadReleases(releases);
+                    //this.events.GetEvent<UiMessageEvent>().Publish(new UiMessage("Applying update", UiMessage.Severity.Info));
+                    await mgr.Result.ApplyReleases(updateInfo);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+            }
+        }
+
+        private static void OnInitialInstall(UpdateManager mgr)
+        {
+            string thisExe = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            mgr.CreateShortcutForThisExe();
+            mgr.CreateShortcutsForExecutable(thisExe, ShortcutLocation.Desktop, false);
+            mgr.CreateShortcutsForExecutable(thisExe, ShortcutLocation.StartMenu, false);
+            mgr.CreateShortcutsForExecutable(thisExe, ShortcutLocation.Startup, true);
+            mgr.CreateUninstallerRegistryEntry();
+        }
+
+        private static void OnAppUpdate(UpdateManager mgr)
+        {
+            string thisExe = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            mgr.CreateShortcutsForExecutable(thisExe, ShortcutLocation.Desktop, true);
+            mgr.CreateShortcutsForExecutable(thisExe, ShortcutLocation.StartMenu, true);
+            mgr.CreateShortcutsForExecutable(thisExe, ShortcutLocation.Startup, true);
+            mgr.RemoveUninstallerRegistryEntry();
+            mgr.CreateUninstallerRegistryEntry();
+        }
+
+        private static void OnAppUninstall(UpdateManager mgr)
+        {
+            string thisExe = System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            mgr.RemoveShortcutsForExecutable(thisExe, ShortcutLocation.Desktop);
+            mgr.RemoveShortcutsForExecutable(thisExe, ShortcutLocation.StartMenu);
+            mgr.RemoveShortcutsForExecutable(thisExe, ShortcutLocation.Startup);
+            mgr.RemoveUninstallerRegistryEntry();
         }
     }
 }
