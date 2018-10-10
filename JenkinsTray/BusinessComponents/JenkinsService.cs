@@ -205,7 +205,7 @@ namespace JenkinsTray.BusinessComponents
             var number = xml.SelectSingleNode("/*/number").InnerText;
             var fullDisplayName = xml.SelectSingleNode("/*/fullDisplayName").InnerText;
             var timestamp = xml.SelectSingleNode("/*/timestamp").InnerText;
-            var estimatedDuration = xml.SelectSingleNode("/*/estimatedDuration").InnerText;
+            var estimatedDuration = xml.SelectSingleNode("/*/estimatedDuration")?.InnerText ?? "0";
             var duration = xml.SelectSingleNode("/*/duration").InnerText;
             var xmlResult = xml.SelectSingleNode("/*/result");
             var result = xmlResult == null ? string.Empty : xmlResult.InnerText;
@@ -215,7 +215,7 @@ namespace JenkinsTray.BusinessComponents
             var date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             date = date.Add(ts);
             var estimatedts = TimeSpan.FromSeconds(long.Parse(estimatedDuration)/1000);
-            var durationts = TimeSpan.FromSeconds(long.Parse(estimatedDuration)/1000);
+            var durationts = TimeSpan.FromSeconds(long.Parse(duration)/1000);
 
             Spring.Collections.Generic.ISet<string> users = new HashedSet<string>();
             foreach (XmlNode userNode in userNodes)
