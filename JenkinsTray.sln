@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsTray", "JenkinsTray\JenkinsTray.csproj", "{A54602CA-6823-4F2C-870F-1D464D9F4814}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JenkinsTray", "JenkinsTray\JenkinsTray.csproj", "{A54602CA-6823-4F2C-870F-1D464D9F4814}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsTray.Tests", "JenkinsTray.Tests\JenkinsTray.Tests.csproj", "{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JenkinsTray.Tests", "JenkinsTray.Tests\JenkinsTray.Tests.csproj", "{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JenkinsTray.Setup.CustomActions", "JenkinsTray.Setup.CustomActions\JenkinsTray.Setup.CustomActions.csproj", "{95AA7347-A21A-4F09-80DF-D9797B0FA997}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JenkinsTray.Setup.CustomActions", "JenkinsTray.Setup.CustomActions\JenkinsTray.Setup.CustomActions.csproj", "{95AA7347-A21A-4F09-80DF-D9797B0FA997}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "JenkinsTray.WixSetup", "JenkinsTray.WixSetup\JenkinsTray.WixSetup.wixproj", "{4839B061-A1DF-4F9F-852E-95F534D949BB}"
 EndProject
@@ -17,21 +17,26 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Debug|x86.ActiveCfg = Debug|x86
-		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Debug|x86.Build.0 = Debug|x86
-		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Release|x86.ActiveCfg = Release|x86
-		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Release|x86.Build.0 = Release|x86
-		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Debug|x86.ActiveCfg = Debug|x86
-		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Debug|x86.Build.0 = Debug|x86
-		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Release|x86.ActiveCfg = Release|x86
-		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Release|x86.Build.0 = Release|x86
-		{95AA7347-A21A-4F09-80DF-D9797B0FA997}.Debug|x86.ActiveCfg = Debug|x86
-		{95AA7347-A21A-4F09-80DF-D9797B0FA997}.Release|x86.ActiveCfg = Release|x86
+		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Debug|x86.Build.0 = Debug|Any CPU
+		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Release|x86.ActiveCfg = Release|Any CPU
+		{A54602CA-6823-4F2C-870F-1D464D9F4814}.Release|x86.Build.0 = Release|Any CPU
+		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Debug|x86.Build.0 = Debug|Any CPU
+		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Release|x86.ActiveCfg = Release|Any CPU
+		{B7F74B87-21B6-4887-A41E-49CDF8EFB7E0}.Release|x86.Build.0 = Release|Any CPU
+		{95AA7347-A21A-4F09-80DF-D9797B0FA997}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{95AA7347-A21A-4F09-80DF-D9797B0FA997}.Debug|x86.Build.0 = Debug|Any CPU
+		{95AA7347-A21A-4F09-80DF-D9797B0FA997}.Release|x86.ActiveCfg = Release|Any CPU
+		{95AA7347-A21A-4F09-80DF-D9797B0FA997}.Release|x86.Build.0 = Release|Any CPU
 		{4839B061-A1DF-4F9F-852E-95F534D949BB}.Debug|x86.ActiveCfg = Debug|x86
 		{4839B061-A1DF-4F9F-852E-95F534D949BB}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B25C06C0-9A90-45CA-A792-10B5680AE1F1}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = JenkinsTray.vsmdi
