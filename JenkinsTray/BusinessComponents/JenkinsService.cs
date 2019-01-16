@@ -20,6 +20,9 @@ namespace JenkinsTray.BusinessComponents
     public class JenkinsService
     {
         public static readonly String buildDetailsFilter = "?tree=number,fullDisplayName,timestamp,estimatedDuration,duration,result,userNodes,culprits[fullName],builtOn,url,actions[assignedBy,claimDate,claimed,claimedBy,reason]";
+
+        private static readonly String crumbIssuerUrl = "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)";
+
         private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         [ThreadStatic] private static WebClient threadWebClient;
@@ -429,6 +432,42 @@ namespace JenkinsTray.BusinessComponents
             return res;
         }
 
+        public bool GetCrumb(Server server)
+        {
+            bool gotCrumb = false;
+
+            //if (server.Credentials != null && String.IsNullOrEmpty(server.Credentials.Crumb))
+            {
+                try
+                {
+                    logger.Info("Attempting to get breadcrumb from: " + server.DisplayName);
+
+                    var url = NetUtils.ConcatUrls(server.Url, crumbIssuerUrl);
+                    var str = DownloadString(server.Credentials, url, false, server.IgnoreUntrustedCertificate);
+
+                    if (logger.IsTraceEnabled)
+                        logger.Trace("Result: " + str);
+
+                    server.Credentials.Crumb = str;
+                    gotCrumb = true;
+                    logger.Info("Got crumb!");
+                }
+                catch (WebException webEx)
+                {
+                    if (webEx.Status == WebExceptionStatus.ProtocolError &&
+                        ((HttpWebResponse)webEx.Response).StatusCode == HttpStatusCode.NotFound)
+                    {
+                        //  consume error 404
+                        server.Credentials.Crumb = HttpStatusCode.NotFound.ToString();
+                        logger.Info("Crumb unavailable from non-CSRF server.");
+                    }
+                    else
+                        throw webEx;
+                }
+            }
+            return gotCrumb;
+        }
+
         private WebClient GetWebClient(Credentials credentials)
         {
             if (threadWebClient == null)
@@ -448,6 +487,10 @@ namespace JenkinsTray.BusinessComponents
                 var authentication = "Basic " + Convert.ToBase64String(
                     Encoding.ASCII.GetBytes(credentials.Username + ":" + credentials.Password));
                 threadWebClient.Headers.Add("Authorization", authentication);
+                if (!string.IsNullOrEmpty(credentials.Crumb))
+                {
+                    threadWebClient.Headers.Add(credentials.Crumb);
+                }
             }
 
             return threadWebClient;

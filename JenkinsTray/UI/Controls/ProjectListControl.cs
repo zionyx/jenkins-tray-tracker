@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Windows.Forms;
 using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
@@ -59,7 +60,10 @@ namespace JenkinsTray.UI.Controls
             // run the process in background
             var process = new Process("Loading project " + server.Url);
             IList<Project> projects = null;
-            process.DoWork += delegate { projects = JenkinsService.LoadProjects(server); };
+            process.DoWork += delegate {
+                //JenkinsService.GetCrumb(server);
+                projects = JenkinsService.LoadProjects(server);
+            };
             process.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
                                           {
                                               var endStatus = "";
@@ -73,10 +77,26 @@ namespace JenkinsTray.UI.Controls
                                               }
                                               else
                                               {
-                                                  endStatus =
-                                                      string.Format(
-                                                          JenkinsTrayResources.FailedLoadingProjects_FormatString,
-                                                          server.Url);
+                                                  if (e.Error is System.Net.WebException)
+                                                  {
+                                                      System.Net.WebException webException = (System.Net.WebException)e.Error;
+                                                      if (webException.Status == WebExceptionStatus.ProtocolError)
+                                                      {
+                                                          HttpStatusCode statusCode = ((HttpWebResponse)webException.Response).StatusCode;
+
+                                                          if (statusCode == HttpStatusCode.Forbidden)
+                                                          {
+                                                              endStatus = "User authentication is required.";
+                                                          }
+                                                      }
+                                                  }
+                                                  else
+                                                  {
+                                                      endStatus =
+                                                          string.Format(
+                                                              JenkinsTrayResources.FailedLoadingProjects_FormatString,
+                                                              server.Url);
+                                                  }
                                               }
 
                                               // enable the window, change the cursor, update the status
